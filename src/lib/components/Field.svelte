@@ -19,7 +19,10 @@
 		min?: string;
 		max?: string;
 		placeholder?: string;
-		/** Il valore che l'orologio ha già registrato per quel giorno. */
+		/**
+		 * Il valore che Salute ha già per quel giorno — dall'orologio o dall'app
+		 * con cui si registrano i pasti, non fa differenza per chi compila.
+		 */
 		sensed?: string | null;
 		hint?: string;
 		/** Bersaglio da rispettare, mostrato accanto all'unità. */
@@ -77,7 +80,7 @@
 	</div>
 
 	{#if sensed}
-		<p class="mt-1.5 text-xs text-ink-3">Dall'orologio: <span class="font-mono text-ink-2">{sensed}</span></p>
+		<p class="mt-1.5 text-xs text-ink-3">Da Salute: <span class="font-mono text-ink-2">{sensed}</span></p>
 	{:else if target}
 		<p class="mt-1.5 text-xs text-ink-3">Obiettivo <span class="font-mono text-ink-2">{target}</span></p>
 	{:else if hint}

@@ -14,7 +14,7 @@ export type Aggregation =
 	| 'last' // peso, VO2 max: vale l'ultima misurazione
 	| 'minmax'; // frequenza cardiaca: interessa media, minimo e massimo
 
-export type MetricGroup = 'activity' | 'heart' | 'body' | 'sleep';
+export type MetricGroup = 'activity' | 'heart' | 'body' | 'sleep' | 'nutrition';
 
 export interface MetricDef {
 	/** Chiave interna, usata come colonna logica in `daily_metrics.metric`. */
@@ -68,6 +68,17 @@ export const METRICS = [
 	{ key: 'bmi', hk: 'HKQuantityTypeIdentifierBodyMassIndex', label: 'Indice di massa corporea', unit: '', agg: 'last', decimals: 1, group: 'body', tone: 'body' },
 	{ key: 'wristTemp', hk: 'HKQuantityTypeIdentifierAppleSleepingWristTemperature', label: 'Temperatura del polso', unit: '°C', agg: 'avg', decimals: 2, group: 'body', tone: 'body' },
 
+	// ── Alimentazione ──────────────────────────────────────────────────────
+	// Non le scrive l'orologio: le scrive l'app con cui si registrano i pasti
+	// (qui YAZIO) attraverso Salute. Servono alla sezione Recupero, che così
+	// smette di chiedere a mano proteine e calorie nei giorni in cui il diario
+	// è stato compilato davvero.
+	{ key: 'dietaryEnergy', hk: 'HKQuantityTypeIdentifierDietaryEnergyConsumed', label: 'Calorie assunte', unit: 'kcal', agg: 'sum', decimals: 0, group: 'nutrition', tone: 'neutral' },
+	{ key: 'dietaryProtein', hk: 'HKQuantityTypeIdentifierDietaryProtein', label: 'Proteine', unit: 'g', agg: 'sum', decimals: 0, group: 'nutrition', tone: 'neutral', higherIsBetter: true },
+	{ key: 'dietaryCarbs', hk: 'HKQuantityTypeIdentifierDietaryCarbohydrates', label: 'Carboidrati', unit: 'g', agg: 'sum', decimals: 0, group: 'nutrition', tone: 'neutral' },
+	{ key: 'dietaryFat', hk: 'HKQuantityTypeIdentifierDietaryFatTotal', label: 'Grassi', unit: 'g', agg: 'sum', decimals: 0, group: 'nutrition', tone: 'neutral' },
+	{ key: 'dietaryWater', hk: 'HKQuantityTypeIdentifierDietaryWater', label: 'Acqua', unit: 'L', agg: 'sum', decimals: 1, group: 'nutrition', tone: 'neutral', higherIsBetter: true },
+
 	// ── Sonno (aggregati derivati dalle sessioni, per i grafici a serie) ────
 	{ key: 'sleepAsleep', label: 'Sonno totale', unit: 'h', agg: 'last', decimals: 1, group: 'sleep', tone: 'sleep', higherIsBetter: true },
 	{ key: 'sleepDeep', label: 'Sonno profondo', unit: 'h', agg: 'last', decimals: 1, group: 'sleep', tone: 'sleep', higherIsBetter: true },
@@ -110,6 +121,17 @@ export function normalizeUnit(value: number, unit: string | undefined): { value:
 		case 'Cal':
 		case 'kcal':
 			return { value, unit: 'kcal' };
+		// L'acqua bevuta esce in millilitri o in once a seconda delle unità
+		// impostate sull'iPhone; in tutta l'app si ragiona in litri. Attenzione a
+		// non confondere 'mL' con 'm', che sopra diventa chilometri.
+		case 'mL':
+		case 'ml':
+			return { value: value / 1000, unit: 'L' };
+		case 'L':
+		case 'l':
+			return { value, unit: 'L' };
+		case 'fl_oz_us':
+			return { value: value * 0.0295735296, unit: 'L' };
 		case 'degF':
 			return { value: ((value - 32) * 5) / 9, unit: '°C' };
 		case 'degC':

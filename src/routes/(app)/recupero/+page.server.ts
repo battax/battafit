@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import {
+	getBlockDays,
 	getEvents,
-	getRehabDays,
 	getRuns,
 	getRunMinutesByDay,
 	goldenFormula,
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 	const blockFrom = TRACKER_START;
 	const blockTo = weekEnd(PROTOCOL_WEEKS);
 
-	const [days, runs, events] = await Promise.all([getRehabDays(blockFrom, blockTo), getRuns(), getEvents()]);
+	const [days, runs, events] = await Promise.all([getBlockDays(blockFrom, blockTo), getRuns(), getEvents()]);
 
 	// La finestra non risale mai prima dell'inizio del blocco: mostrerebbe una
 	// settimana di giorni vuoti che non sono mai stati da compilare.
@@ -28,17 +28,15 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 	const [runMinutes, series] = await Promise.all([
 		getRunMinutesByDay(responseFrom, today),
-		getManySeries(['steps', 'sleepAsleep', 'weight'], responseFrom, today)
+		getManySeries(['steps', 'sleepAsleep'], responseFrom, today)
 	]);
 
 	const byDay = new Map(days.map((d) => [d.day, d]));
 
 	/** Un punto per giorno di calendario, buchi compresi: la linea deve poter spezzarsi. */
-	const response: { day: string; pain: number | null; swelling: string | null }[] = [];
-	for (let d = responseFrom; d <= today; d = addDays(d, 1)) {
-		const row = byDay.get(d);
-		response.push({ day: d, pain: row?.pain ?? null, swelling: row?.swelling ?? null });
-	}
+	const response = days
+		.filter((d) => d.day >= responseFrom && d.day <= today)
+		.map((d) => ({ day: d.day, pain: d.pain, swelling: d.swelling }));
 
 	const summary = summarizeWeek(week, days, runs, config.proteinMinG, today);
 	const ledger = goldenFormula(summary, config);
@@ -71,11 +69,14 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 	const nextRun = runs.find((r) => r.actualRunMin == null && r.plannedOn >= today) ?? null;
 
-	const lastWeight = (series.weight ?? []).filter((p) => p.value != null).at(-1)?.value ?? null;
-	const loggedWeight = days.filter((d) => d.weightKg != null).at(-1)?.weightKg ?? null;
+	// Il peso più recente disponibile, anche di qualche giorno fa: pesarsi ogni
+	// giorno non è previsto, e un trattino non direbbe niente di utile.
+	const lastWeight = days.filter((d) => d.day <= today && d.weightKg.value != null).at(-1)?.weightKg ?? null;
+
+	const todayRow = byDay.get(today) ?? null;
 
 	return {
-		todayLog: byDay.get(today) ?? null,
+		todayLog: todayRow,
 		response,
 		summary,
 		ledger,
@@ -86,9 +87,8 @@ export const load: PageServerLoad = async ({ parent }) => {
 		milestones: events
 			.filter((e) => e.day)
 			.map((e) => ({ day: e.day as string, title: e.title })),
-		/** Il peso di Salute vince su quello scritto a mano: se c'è la bilancia, è più fresco. */
-		weight: lastWeight ?? loggedWeight,
-		weightFromWatch: lastWeight != null,
+		weight: lastWeight?.value ?? null,
+		weightFromWatch: lastWeight?.fromHealth ?? false,
 		runMinutes: runMinutes[today] ?? null,
 		steps: (series.steps ?? []).find((p) => p.day === today)?.value ?? null,
 		sleep: (series.sleepAsleep ?? []).find((p) => p.day === today)?.value ?? null

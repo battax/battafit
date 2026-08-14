@@ -10,7 +10,9 @@
 	const nf0 = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 0 });
 	const nf1 = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 });
 
-	const logged = $derived(data.todayLog);
+	const today = $derived(data.todayLog);
+	/** `logged` è la riga scritta a mano, non la presenza di dati: le calorie sincronizzate non chiudono la giornata. */
+	const logged = $derived(today?.logged ? today : null);
 	const swellingToday = $derived(logged?.swelling ? (SWELLING_BY_KEY.get(logged.swelling)?.label ?? null) : null);
 
 	/** "fra 38 giorni", "oggi", "3 giorni fa": il conto alla rovescia è l'unica cosa che serve leggere di una scadenza. */
@@ -93,8 +95,8 @@
 					</div>
 					<div>
 						<dt class="label">Proteine</dt>
-						<dd class="mt-1 font-mono text-lg {logged.proteinG == null ? 'text-ink-3' : 'text-ink'}">
-							{logged.proteinG == null ? '—' : nf0.format(logged.proteinG)}
+						<dd class="mt-1 font-mono text-lg {logged.proteinG.value == null ? 'text-ink-3' : 'text-ink'}">
+							{logged.proteinG.value == null ? '—' : nf0.format(logged.proteinG.value)}
 							<span class="text-xs text-ink-3">g</span>
 						</dd>
 					</div>
@@ -209,7 +211,7 @@
 		</section>
 
 		<section class="panel p-5">
-			<h2 class="label mb-3">Oggi dall'orologio</h2>
+			<h2 class="label mb-3">Oggi da Salute</h2>
 			<dl class="space-y-2">
 				<div class="flex items-baseline justify-between gap-4">
 					<dt class="text-sm text-ink-2">Passi</dt>
@@ -238,9 +240,9 @@
 			</dl>
 			<p class="mt-4 text-xs text-ink-3">
 				{#if data.weight != null && !data.weightFromWatch}
-					Il peso arriva dal registro: Salute non ne ha per oggi.
+					Il peso arriva dal registro: Salute non ne ha ancora.
 				{:else}
-					Questi quattro non si compilano a mano: il registro chiede solo quello che nessun sensore sa.
+					Questi quattro non si compilano a mano: il registro chiede solo quello che nessuna app sa già.
 				{/if}
 			</p>
 		</section>

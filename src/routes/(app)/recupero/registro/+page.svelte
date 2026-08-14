@@ -117,14 +117,30 @@
 			</p>
 		</section>
 
+		<!--
+			Quando il diario alimentare ha già sincronizzato, questi campi non si
+			compilano: si leggono. Restano comunque scrivibili, perché la
+			sincronizzazione arriva al prossimo import mentre il registro si compila
+			la sera stessa — e perché il diario non si tiene tutti i giorni.
+		-->
 		<section class="panel p-5">
-			<h2 class="mb-4 text-sm font-medium text-ink">Alimentazione</h2>
+			<h2 class="mb-1 text-sm font-medium text-ink">Alimentazione</h2>
+			<p class="mb-4 text-xs text-ink-3">
+				{#if data.sensed.proteinG != null || data.sensed.calories != null}
+					Il diario alimentare ha già sincronizzato questa giornata: quello che scrivi qui vale finché non arriva
+					l'import successivo, poi vince il diario.
+				{:else}
+					Se il diario alimentare non ha ancora sincronizzato, scrivi qui i valori che ti servono per la settimana.
+				{/if}
+			</p>
+
 			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				<Field
 					name="proteinG"
 					label="Proteine"
 					unit="g"
 					value={entry?.proteinG}
+					sensed={data.sensed.proteinG != null ? `${nf0.format(data.sensed.proteinG)} g` : null}
 					target="{nf0.format(data.config.proteinMinG)}–{nf0.format(data.config.proteinHighG)} g"
 				/>
 				<Field
@@ -132,11 +148,31 @@
 					label="Calorie"
 					unit="kcal"
 					value={entry?.calories}
+					sensed={data.sensed.calories != null ? `${nf0.format(data.sensed.calories)} kcal` : null}
 					target="{nf0.format(data.config.caloriesTarget)} kcal"
 				/>
-				<Field name="waterL" label="Acqua" unit="L" value={entry?.waterL} target="{nf1.format(data.config.waterTargetL)} L" />
-				<Field name="carbsG" label="Carboidrati" unit="g" value={entry?.carbsG} />
-				<Field name="fatG" label="Grassi" unit="g" value={entry?.fatG} />
+				<Field
+					name="waterL"
+					label="Acqua"
+					unit="L"
+					value={entry?.waterL}
+					sensed={data.sensed.waterL != null ? `${nf1.format(data.sensed.waterL)} L` : null}
+					target="{nf1.format(data.config.waterTargetL)} L"
+				/>
+				<Field
+					name="carbsG"
+					label="Carboidrati"
+					unit="g"
+					value={entry?.carbsG}
+					sensed={data.sensed.carbsG != null ? `${nf0.format(data.sensed.carbsG)} g` : null}
+				/>
+				<Field
+					name="fatG"
+					label="Grassi"
+					unit="g"
+					value={entry?.fatG}
+					sensed={data.sensed.fatG != null ? `${nf0.format(data.sensed.fatG)} g` : null}
+				/>
 			</div>
 		</section>
 
@@ -228,6 +264,8 @@
 					<tbody class="divide-y divide-line">
 						{#each data.history as row (row.day)}
 							{@const swelling = row.swelling ? SWELLING_BY_KEY.get(row.swelling) : null}
+							{@const protein = row.proteinG.value}
+							{@const weight = row.weightKg.value}
 							<tr class="transition-colors duration-150 hover:bg-panel-2/60">
 								<th scope="row" class="py-2.5 text-left font-normal">
 									<a href={href(row.day)} class="font-mono text-xs text-ink-2 transition-colors hover:text-ink">
@@ -251,14 +289,14 @@
 									{row.upperBody ?? '—'}
 								</td>
 								<td
-									class="py-2.5 text-right font-mono {row.proteinG != null && row.proteinG >= data.config.proteinMinG
+									class="py-2.5 text-right font-mono {protein != null && protein >= data.config.proteinMinG
 										? 'text-ink'
 										: 'text-ink-3'}"
 								>
-									{row.proteinG == null ? '—' : nf0.format(row.proteinG)}
+									{protein == null ? '—' : nf0.format(protein)}
 								</td>
-								<td class="py-2.5 text-right font-mono {row.weightKg == null ? 'text-ink-3' : 'text-ink'}">
-									{row.weightKg == null ? '—' : nf1.format(row.weightKg)}
+								<td class="py-2.5 text-right font-mono {weight == null ? 'text-ink-3' : 'text-ink'}">
+									{weight == null ? '—' : nf1.format(weight)}
 								</td>
 							</tr>
 						{/each}

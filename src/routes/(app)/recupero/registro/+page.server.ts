@@ -1,6 +1,6 @@
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getRehabDay, getRehabDays, getRunMinutesByDay, saveRehabDay } from '$lib/server/rehab';
+import { getBlockDays, getRehabDay, getRunMinutesByDay, saveRehabDay } from '$lib/server/rehab';
 import { getManySeries } from '$lib/server/queries';
 import { PROTOCOL_WEEKS, SWELLING, TRACKER_START, UPPER_BODY, weekEnd, weekOf } from '$lib/rehab';
 import { int, num, oneOf, str } from '$lib/server/form';
@@ -22,16 +22,31 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 
 	const [entry, days, series, runMinutes] = await Promise.all([
 		getRehabDay(day),
-		getRehabDays(TRACKER_START, blockTo),
-		getManySeries(['steps', 'sleepAsleep', 'weight'], day, day),
+		getBlockDays(TRACKER_START, blockTo),
+		getManySeries(['steps', 'sleepAsleep'], day, day),
 		getRunMinutesByDay(day, day)
 	]);
 
+	const merged = days.find((d) => d.day === day) ?? null;
+
+	/**
+	 * Quello che Salute conosce già di questa giornata.
+	 *
+	 * Peso, passi, sonno e minuti di corsa vengono dall'orologio; calorie,
+	 * proteine, macro e acqua dall'app con cui si registrano i pasti. Il form li
+	 * mostra invece di chiederli — e resta comunque scrivibile, perché il diario
+	 * si compila la sera mentre la sincronizzazione arriva al prossimo import.
+	 */
 	const sensed = {
 		steps: (series.steps ?? [])[0]?.value ?? null,
 		sleep: (series.sleepAsleep ?? [])[0]?.value ?? null,
-		weight: (series.weight ?? [])[0]?.value ?? null,
-		runMinutes: runMinutes[day] ?? null
+		runMinutes: runMinutes[day] ?? null,
+		weight: merged?.weightKg.fromHealth ? merged.weightKg.value : null,
+		calories: merged?.calories.fromHealth ? merged.calories.value : null,
+		proteinG: merged?.proteinG.fromHealth ? merged.proteinG.value : null,
+		carbsG: merged?.carbsG.fromHealth ? merged.carbsG.value : null,
+		fatG: merged?.fatG.fromHealth ? merged.fatG.value : null,
+		waterL: merged?.waterL.fromHealth ? merged.waterL.value : null
 	};
 
 	return {
@@ -41,8 +56,10 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 		config,
 		week: weekOf(day),
 		saved: url.searchParams.has('salvato'),
-		/** Solo i giorni compilati: la cronologia elenca cosa c'è, non 91 righe vuote. */
-		history: days.filter((d) => d.day <= today).reverse()
+		/** Il diario alimentare da solo non fa una giornata: in cronologia finiscono i giorni compilati o sincronizzati. */
+		history: days
+			.filter((d) => d.day <= today && (d.logged || d.proteinG.value != null || d.weightKg.value != null))
+			.reverse()
 	};
 };
 

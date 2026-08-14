@@ -128,12 +128,20 @@ daltonismo e contrasto) sul fondo scuro dell'interfaccia.
 della stringa, cioè dal fuso in cui si trovava l'orologio: è il "giorno" che ci
 si aspetta di vedere, e non sposta gli allenamenti serali al giorno dopo.
 
-**Il recupero non richiede quello che l'orologio sa già.** Il registro
-giornaliero chiede dolore, gonfiore, sedute svolte e alimentazione; peso, passi,
-sonno e minuti di corsa li mostra e basta, letti da Salute. Il peso resta
-scrivibile a mano perché senza bilancia connessa non arriva a Salute, e il
-girovita perché Salute non lo prevede affatto; quando Salute ha il peso di quel
-giorno, vince quello.
+**Il recupero non richiede quello che Salute sa già.** Passi, sonno, minuti di
+corsa e peso arrivano dall'orologio; calorie, proteine, carboidrati, grassi e
+acqua dall'app con cui si registrano i pasti, se scrive su Salute — YAZIO,
+MyFitnessPal e simili lo fanno una volta attivata l'integrazione. Il registro
+serale chiede solo quello che nessuna app sa: dolore, gonfiore e sedute svolte.
+
+**Quando i due valori esistono entrambi, vince Salute.** Il campo scritto a mano
+resta disponibile perché il registro si compila la sera mentre la
+sincronizzazione arriva al prossimo import: è un ripiego che dura fino a quel
+momento. Il girovita resta sempre manuale, perché Salute non lo prevede affatto.
+
+**Un giorno sincronizzato non è un giorno compilato.** La formula d'oro continua
+a chiedere la giornata anche se le calorie sono già arrivate: quello che manca è
+la risposta del ginocchio, che è il motivo per cui la sezione esiste.
 
 **Il protocollo sta nel codice, i dati nel database.** Date dei controlli,
 progressione della corsa, soglie di dolore e segnali d'allarme vivono in

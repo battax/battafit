@@ -157,10 +157,22 @@ sensori da un filetto: sotto quella riga il dato cambia natura, da letto a
 scritto.
 
 **Il principio che la governa: non chiedere due volte.** Peso, passi, sonno e
-minuti di corsa esistono già in Salute, quindi il registro non li domanda — li
-mostra. Restano da scrivere solo dolore, gonfiore, sedute svolte e alimentazione,
-che nessun sensore può sapere. Il foglio di calcolo da cui nasce la sezione
-chiedeva diciotto numeri al giorno; qui ne restano sei.
+minuti di corsa arrivano dall'orologio; calorie, proteine, macro e acqua dall'app
+del diario alimentare, che scrive anch'essa su Salute. Il registro non li domanda
+— li mostra. Restano da scrivere solo dolore, gonfiore e sedute svolte, che
+nessuna app può sapere. Il foglio di calcolo da cui nasce la sezione chiedeva
+diciotto numeri al giorno.
+
+Dove i due valori esistono entrambi **vince Salute**, e il campo scritto a mano
+resta comunque disponibile: il registro si compila la sera, la sincronizzazione
+arriva al prossimo import, e fra i due momenti serve poter scrivere. La
+provenienza è dichiarata sotto ogni campo — «Da Salute: 172 g» — perché un numero
+che compare da solo in una casella vuota è indistinguibile da uno inventato.
+
+Il conteggio dei giorni compilati resta però legato alla riga scritta a mano: una
+giornata con le sole calorie sincronizzate non è compilata, e la formula d'oro
+deve continuare a chiederla. Quello che manca è la risposta del ginocchio, che è
+il motivo per cui la sezione esiste.
 
 Sei viste sotto un'unica testata (`recupero/+layout.svelte`), non sei voci nel
 menu principale: condividono lo stesso blocco di tredici settimane e si passa

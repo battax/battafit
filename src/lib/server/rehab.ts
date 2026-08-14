@@ -302,7 +302,12 @@ export function bestByExercise(rows: RehabSetRow[]) {
 	const map = new Map<string, { exercise: string; side: string | null; loadKg: number; reps: number | null; day: string }>();
 	for (const r of rows) {
 		if (r.loadKg == null) continue;
-		const key = `${r.exercise} ${r.side ?? ''}`;
+		// Chiave composta senza separatore da inventare: concatenare esercizio e
+		// lato con un carattere qualsiasi obbliga a sceglierne uno che non possa
+		// comparire nel nome di un esercizio, e quello scelto per primo era un
+		// byte nullo, invisibile nell'editor e sufficiente a far classificare
+		// l'intero file come binario da git.
+		const key = JSON.stringify([r.exercise, r.side]);
 		const current = map.get(key);
 		if (!current || r.loadKg > current.loadKg) {
 			map.set(key, { exercise: r.exercise, side: r.side, loadKg: r.loadKg, reps: r.reps, day: r.day });

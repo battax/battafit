@@ -31,18 +31,25 @@
 		reference?: { value: number; label: string } | null;
 		/** Le somme partono da zero; le misure fisiologiche no, o si appiattiscono. */
 		zeroBased?: boolean;
+		/**
+		 * Quota da cui parte il velo sotto la linea. Su una serie con segno è lo
+		 * zero: riempire dal fondo farebbe leggere uno scostamento di −2 come una
+		 * grandezza quasi piena, invece che come un filo sotto la linea di mezzo.
+		 */
+		areaBase?: number | null;
 		label?: string;
 	}
 
 	let {
 		data,
 		mark = 'line',
-		color = 'var(--color-suit-blue)',
+		color = 'var(--color-bio)',
 		height = 220,
 		format = (v: number) => new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(v),
 		unit = '',
 		reference = null,
 		zeroBased = mark === 'bar',
+		areaBase = null,
 		label = ''
 	}: Props = $props();
 
@@ -144,7 +151,7 @@
 	const areaPath = $derived(
 		d3area<{ date: Date; value: number }>()
 			.x((d) => x(d.date))
-			.y0(innerH)
+			.y0(areaBase == null ? innerH : y(areaBase))
 			.y1((d) => y(d.value))
 			.curve(curveMonotoneX)
 	);
@@ -200,6 +207,15 @@
 	}
 
 	const active = $derived(hovered != null ? valued[hovered] : null);
+
+	/** Distanza del giorno puntato dalla linea di riferimento, già formattata. */
+	const gapFromReference = $derived.by(() => {
+		if (!active || !reference) return null;
+		const gap = active.value - reference.value;
+		if (gap === 0) return null;
+		return { above: gap > 0, text: format(Math.abs(gap)) };
+	});
+
 	const tooltipX = $derived(active ? PAD.left + x(active.date) : 0);
 	/** Il tooltip si ribalta a sinistra quando starebbe stretto contro il bordo destro. */
 	const tooltipFlip = $derived(tooltipX > width - 130);
@@ -247,19 +263,22 @@
 					</text>
 				{/each}
 
+				<!--
+					La linea di riferimento è oro perché l'oro, in questa palette, è il
+					canale di ciò che va tenuto d'occhio. Sta sopra la griglia e sotto i
+					dati: serve a dire dove cade il picco, non a competerci.
+				-->
 				{#if reference}
 					<line
 						x1="0"
 						x2={innerW}
 						y1={y(reference.value)}
 						y2={y(reference.value)}
-						stroke="var(--color-ink-3)"
+						stroke="var(--color-load)"
 						stroke-width="1"
 						stroke-dasharray="3 4"
+						opacity="0.8"
 					/>
-					<text x={innerW} y={y(reference.value) - 6} text-anchor="end" class="fill-ink-3 font-mono text-[10px]">
-						{reference.label}
-					</text>
 				{/if}
 
 				{#if mark === 'bar'}
@@ -268,10 +287,16 @@
 						<path
 							d={barPath(x(p.date) - barW / 2, y(p.value), barW, h)}
 							fill={color}
-							opacity={hovered == null || hovered === i ? 1 : 0.45}
+							opacity={hovered == null || hovered === i ? 1 : 0.4}
 							class="[animation:grow_.5s_var(--ease-settle)_both]"
 							style="animation-delay: {Math.min(i * 4, 300)}ms; transform-box: fill-box; transform-origin: bottom;"
 						/>
+						<!-- Sulla barra sotto il puntatore si accende la cima, non tutta la
+						     colonna: schiarire l'intera area sposterebbe il peso visivo e
+						     farebbe sembrare quel giorno più grande di quanto è. -->
+						{#if hovered === i}
+							<rect x={x(p.date) - barW / 2} y={y(p.value)} width={barW} height="2" fill="var(--color-ink)" />
+						{/if}
 					{/each}
 				{:else}
 					{#each segments as seg, si (si)}
@@ -292,6 +317,27 @@
 							<circle cx={x(seg[0].date)} cy={y(seg[0].value)} r="2.5" fill={color} />
 						{/if}
 					{/each}
+				{/if}
+
+				<!--
+					L'etichetta della media si disegna dopo i dati, non insieme alla sua
+					linea: sull'ultimo giorno del periodo c'è quasi sempre una barra, e
+					disegnandola prima finiva coperta a metà. Il contorno del colore di
+					fondo la stacca da qualunque cosa le passi sotto.
+				-->
+				{#if reference}
+					<text
+						x={innerW}
+						y={y(reference.value) - 6}
+						text-anchor="end"
+						paint-order="stroke"
+						stroke="var(--color-page)"
+						stroke-width="3"
+						stroke-linejoin="round"
+						class="fill-load font-mono text-[10px] tracking-wide uppercase"
+					>
+						{reference.label}
+					</text>
 				{/if}
 
 				<!-- Asse dei tempi: solo etichette, la linea di base è già data dalla griglia. -->
@@ -317,7 +363,7 @@
 					/>
 					{#if mark === 'line'}
 						<!-- Anello della superficie attorno al punto: lo stacca dalla linea sottostante. -->
-						<circle cx={x(active.date)} cy={y(active.value)} r="6" fill="var(--color-panel)" />
+						<circle cx={x(active.date)} cy={y(active.value)} r="6" fill="var(--color-panel-solid)" />
 						<circle cx={x(active.date)} cy={y(active.value)} r="4" fill={color} />
 					{/if}
 				{/if}
@@ -327,13 +373,27 @@
 
 		{#if active}
 			<div
-				class="pointer-events-none absolute top-1 z-10 rounded-lg border border-line-strong bg-panel-2/95 px-2.5 py-1.5 shadow-lg shadow-black/40 backdrop-blur-sm"
+				class="pointer-events-none absolute top-1 z-10 rounded-[3px] border border-line-strong bg-panel-solid/95 px-3 py-2 shadow-lg shadow-black/50 backdrop-blur-sm"
 				style="left: {tooltipX}px; transform: translateX({tooltipFlip ? '-100%' : '0'})"
 			>
 				<p class="text-[10px] whitespace-nowrap text-ink-3">{tooltipFormat.format(active.date)}</p>
-				<p class="font-mono text-sm font-medium whitespace-nowrap text-ink">
-					{format(active.value)}<span class="ml-1 text-xs text-ink-2">{unit}</span>
+				<p class="mt-0.5 flex items-baseline gap-1.5 font-mono text-sm font-medium whitespace-nowrap text-ink">
+					<span class="size-1.5 shrink-0 rounded-full" style="background: {color}"></span>
+					{format(active.value)}<span class="text-xs text-ink-2">{unit}</span>
 				</p>
+				<!--
+					Lo scarto dal riferimento è il motivo per cui la linea è disegnata: se
+					c'è la media, la domanda su un giorno qualsiasi è sempre "quanto sopra
+					o quanto sotto", e farla stimare a occhio è farla perdere.
+				-->
+				{#if gapFromReference}
+					<p class="mt-1 font-mono text-[10px] whitespace-nowrap text-ink-3">
+						<span class={gapFromReference.above ? 'text-ink-2' : 'text-load'}>
+							{gapFromReference.above ? '+' : '−'}{gapFromReference.text}
+						</span>
+						sulla media
+					</p>
+				{/if}
 			</div>
 		{/if}
 	{/if}

@@ -12,9 +12,9 @@
 <svelte:head><title>Accedi · BattaFit</title></svelte:head>
 
 <main class="relative flex min-h-dvh items-center justify-center overflow-hidden px-6 py-12">
-	<!-- Ragnatela di fondo, sotto il 5% di opacità: si riconosce solo dopo aver
-	     letto quello che conta. Decorativa, quindi invisibile agli screen reader. -->
-	<div class="web-backdrop pointer-events-none absolute inset-0" aria-hidden="true"></div>
+	<!-- Reticolo di fondo, sotto il 5% di opacità: si riconosce solo dopo aver
+	     letto quello che conta. Decorativo, quindi invisibile agli screen reader. -->
+	<div class="hud-backdrop pointer-events-none absolute inset-0" aria-hidden="true"></div>
 
 	<div class="relative w-full max-w-[340px]">
 		<div class="mb-8 flex flex-col items-center gap-4 text-center">
@@ -72,8 +72,8 @@
 						autofocus
 						aria-invalid={form?.error ? 'true' : undefined}
 						aria-describedby={form?.error ? 'login-error' : undefined}
-						class="w-full rounded-lg border border-line bg-panel-2 px-3 py-2.5 text-sm text-ink
-							placeholder:text-ink-3 focus:border-s1 focus:outline-none"
+						class="w-full rounded-[3px] border border-line bg-panel-2 px-3 py-2.5 text-sm text-ink
+							placeholder:text-ink-3 focus:border-motion focus:outline-none"
 						placeholder="••••••••"
 					/>
 				</div>
@@ -88,7 +88,7 @@
 				<button
 					type="submit"
 					disabled={submitting}
-					class="w-full rounded-lg bg-ink px-3 py-2.5 text-sm font-medium text-page
+					class="w-full rounded-[3px] bg-ink px-3 py-2.5 text-sm font-medium text-page
 						transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
 				>
 					{submitting ? 'Verifico…' : 'Entra'}

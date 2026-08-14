@@ -111,7 +111,7 @@
 						{#if w.logged > 0 && w.score > 0}
 							<path
 								d={barPath(cx - colW / 2, y(w.score), colW, innerH - y(w.score), 2)}
-								fill={isNow ? 'var(--color-suit-red)' : 'var(--color-ramp-400)'}
+								fill={isNow ? 'var(--color-motion)' : 'var(--color-ramp-400)'}
 								class="[animation:grow_.5s_var(--ease-settle)_both]"
 								style="animation-delay: {w.week * 22}ms; transform-box: fill-box; transform-origin: bottom;"
 							/>
@@ -132,7 +132,7 @@
 								x2={cx + colW / 2}
 								y1={y(level)}
 								y2={y(level)}
-								stroke="var(--color-panel)"
+								stroke="var(--color-panel-solid)"
 								stroke-width="1"
 							/>
 						{/each}
@@ -145,10 +145,10 @@
 						x2={x(todayOffset)}
 						y1="-6"
 						y2={innerH + 6}
-						stroke="var(--color-suit-red)"
+						stroke="var(--color-motion)"
 						stroke-width="1.5"
 					/>
-					<circle cx={x(todayOffset)} cy="-6" r="2.5" fill="var(--color-suit-red)" />
+					<circle cx={x(todayOffset)} cy="-6" r="2.5" fill="var(--color-motion)" />
 				{/if}
 
 				{#each pins as pin (pin.id)}
@@ -157,7 +157,7 @@
 						x2={x(pin.offset)}
 						y1={innerH + 2}
 						y2={innerH + 9}
-						stroke="var(--color-street)"
+						stroke="var(--color-load)"
 						stroke-width="1.5"
 					/>
 				{/each}

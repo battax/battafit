@@ -44,7 +44,7 @@
 		dodici letture. L'altezza totale è quasi costante, quindi l'informazione
 		sta nella proporzione, non nella dimensione.
 	-->
-	<section class="panel panel-bleed px-4 py-5 md:px-8">
+	<section class="panel hud-load panel-bleed px-4 py-5 md:px-8">
 		<div class="mb-5 flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">La progressione</h2>
 			<p class="font-mono text-xs text-ink-3">{data.done} sedute su {data.runs.length}</p>
@@ -69,7 +69,7 @@
 					<span class="block rounded-t-[2px] bg-line" style="height: calc({(run.walkMin / maxTotal) * 100}% - 1px)"
 					></span>
 					<span
-						class="block rounded-b-[2px] {run.actualRunMin != null ? 'bg-suit-blue' : 'bg-ramp-600'}"
+						class="block rounded-b-[2px] {run.actualRunMin != null ? 'bg-bio' : 'bg-ramp-600'}"
 						style="height: calc({(run.runMin / maxTotal) * 100}% - 1px)"
 					></span>
 				</a>
@@ -85,7 +85,7 @@
 
 		<ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5">
 			<li class="flex items-center gap-1.5 text-xs text-ink-2">
-				<span class="size-2 rounded-[2px] bg-suit-blue"></span> Corsa fatta
+				<span class="size-2 rounded-[2px] bg-bio"></span> Corsa fatta
 			</li>
 			<li class="flex items-center gap-1.5 text-xs text-ink-2">
 				<span class="size-2 rounded-[2px] bg-ramp-600"></span> Corsa da fare
@@ -97,7 +97,7 @@
 		</ul>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-2 text-sm font-medium text-ink">Quando si sale di livello</h2>
 		<p class="text-sm text-ink-2">
 			Una seduta è tollerata se il dolore resta entro {RUN_PAIN_LIMIT} durante e il mattino dopo, la sera non c'è
@@ -118,7 +118,7 @@
 		identici uno sotto l'altro sarebbero la griglia di schede che questa
 		dashboard evita ovunque. Si apre quella che tocca, le altre restano righe.
 	-->
-	<section class="panel divide-y divide-line">
+	<section class="panel hud-load divide-y divide-line">
 		{#each data.runs as run (run.id)}
 			{@const isOpen = run.id === openId}
 			<div id="seduta-{run.id}">
@@ -221,7 +221,7 @@
 
 						<button
 							type="submit"
-							class="rounded-[3px] bg-suit-red px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
+							class="rounded-[3px] bg-motion px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
 						>
 							Salva la seduta
 						</button>

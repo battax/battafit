@@ -117,16 +117,30 @@ una chiave API e manderebbe a un fornitore di tile le coordinate di ogni uscita
 SVG con una barra della scala: restano sul tuo server e la forma del giro si
 riconosce comunque.
 
+**Il colore ha una semantica, non è una tavolozza.** Rosso è movimento, blu è
+biometria, oro è carico e attenzione, verde è soltanto ciò che è completo. Un
+pannello non sceglie la propria tinta: la eredita dal tipo di dato che contiene,
+e il taglio in diagonale sui suoi due angoli è quel colore. Se una tinta compare
+fuori dal suo canale, l'interfaccia comincia a mentire.
+
 **Gli anelli non usano i colori di Apple.** La coppia rosso/verde di Movimento
 ed Esercizio ha una separazione di 4.3 per chi ha un deficit di visione dei
-rossi e dei verdi: sono lo stesso colore. Gli anelli usano tre tinte di una
-palette verificata a macchina (banda di luminosità, croma, separazione per
-daltonismo e contrasto) sul fondo scuro dell'interfaccia.
+rossi e dei verdi: sono lo stesso colore. Ed è anche il motivo per cui in questa
+palette il verde non fa mai il colore di una serie. Le otto tinte dei grafici
+sono verificate a macchina contro il fondo dell'interfaccia — banda di
+luminosità, croma, separazione per daltonismo e contrasto — e il loro ordine non
+è estetico: cambiarlo obbliga a rilanciare il validatore.
 
 **Le date si prendono come sono scritte.** Apple scrive `2024-03-15 08:30:00
 +0100`, che non è ISO valido. I giorni si ricavano dai primi dieci caratteri
 della stringa, cioè dal fuso in cui si trovava l'orologio: è il "giorno" che ci
 si aspetta di vedere, e non sposta gli allenamenti serali al giorno dopo.
+
+**Non c'è nessun «live».** L'app legge un export che arrivi tu a mano, ogni
+tanto: la testata scrive quando è stato fatto l'ultimo import e ingiallisce il
+pallino dopo una settimana. Per la stessa ragione il pannello di sintesi si
+chiama *Insight* e non *Insight AI* — dietro ci sono delle divisioni, non un
+modello, e ogni frase è la lettura ad alta voce di un numero già a schermo.
 
 **Il recupero non richiede quello che Salute sa già.** Passi, sonno, minuti di
 corsa e peso arrivano dall'orologio; calorie, proteine, carboidrati, grassi e
@@ -159,8 +173,16 @@ altre sezioni ancorano i periodi all'ultimo dato disponibile; qui si compila la
 sera stessa, e il server gira in UTC: all'una di notte registrerebbe il giorno
 prima.
 
+**La prontezza è uno scostamento, non un voto.** La prima scheda del recupero
+confronta variabilità cardiaca, frequenza a riposo, sonno e carico recente con la
+media delle sessanta giornate precedenti, e ne dice di quanto ti discosti — non
+se sei «pronto». I contributi e i loro pesi sono sempre a schermo, quelli
+esclusi restano in elenco con il motivo, e quanti ne sono entrati nel conto è
+parte del risultato. Non consiglia nessun carico.
+
 **Non è un dispositivo medico.** L'app mostra i valori che le vengono dati e le
-regole già concordate con i professionisti. Non ne deduce di nuove.
+regole già concordate con i professionisti. L'unica cosa che calcola da sé è
+quella qui sopra, ed è dichiarata per intero in `src/lib/readiness.ts`.
 
 **`@vercel/analytics` è installato di proposito e non usato.** Nessun file lo
 importa, quindi non raccoglie niente: per attivarlo servirebbe montare

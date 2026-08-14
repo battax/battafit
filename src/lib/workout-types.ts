@@ -13,6 +13,13 @@ export interface WorkoutTypeDef {
 	icon: IconName;
 	/** Gli allenamenti a distanza mostrano passo e chilometri; gli altri no. */
 	distanceBased?: boolean;
+	/**
+	 * Scavalca il colore della famiglia. Serve alle discipline che condividono
+	 * l'icona con un'altra e le stanno accanto nei filtri: due voci con lo stesso
+	 * segno e la stessa tinta si distinguono solo rileggendo l'etichetta, che è
+	 * esattamente quello che il colore doveva evitare.
+	 */
+	tone?: string;
 }
 
 export const WORKOUT_TYPES: Record<string, WorkoutTypeDef> = {
@@ -26,7 +33,7 @@ export const WORKOUT_TYPES: Record<string, WorkoutTypeDef> = {
 	StairClimbing: { label: 'Scale', icon: 'stairs' },
 	Stairs: { label: 'Scale', icon: 'stairs' },
 	HighIntensityIntervalTraining: { label: 'HIIT', icon: 'hiit' },
-	FunctionalStrengthTraining: { label: 'Forza funzionale', icon: 'strength' },
+	FunctionalStrengthTraining: { label: 'Forza funzionale', icon: 'strength', tone: 'var(--color-s6)' },
 	TraditionalStrengthTraining: { label: 'Pesi', icon: 'strength' },
 	CoreTraining: { label: 'Core', icon: 'yoga' },
 	Yoga: { label: 'Yoga', icon: 'yoga' },
@@ -59,6 +66,37 @@ export const WORKOUT_TYPES: Record<string, WorkoutTypeDef> = {
 /** `HKWorkoutActivityTypeRunning` → `Running`. */
 export function shortWorkoutType(hkType: string): string {
 	return hkType.replace(/^HKWorkoutActivityType/, '');
+}
+
+/**
+ * Il colore di una disciplina.
+ *
+ * È indicizzato sull'icona e non sul tipo, così i cinquanta tipi di HealthKit
+ * non vanno tenuti allineati a mano: le famiglie sono già quelle del set di
+ * icone, e un tipo nuovo che eredita l'icona eredita anche la tinta.
+ *
+ * Gli slot sono otto e le famiglie tredici, quindi qualche coppia condivide il
+ * colore. Non è un problema: nell'elenco e nei filtri l'identità è portata
+ * sempre anche dall'icona e dall'etichetta, mai dal solo colore. Il colore
+ * serve a rendere la fila scorribile, non a sostituire il nome.
+ */
+const TONE_BY_ICON: Partial<Record<IconName, string>> = {
+	run: 'var(--color-s1)',
+	bike: 'var(--color-s7)',
+	swim: 'var(--color-s2)',
+	strength: 'var(--color-s3)',
+	hiit: 'var(--color-s8)',
+	yoga: 'var(--color-s4)',
+	walk: 'var(--color-s5)',
+	hike: 'var(--color-s6)',
+	row: 'var(--color-s5)',
+	ball: 'var(--color-s6)',
+	mountain: 'var(--color-s4)',
+	stairs: 'var(--color-s3)'
+};
+
+export function workoutTone(def: WorkoutTypeDef): string {
+	return def.tone ?? TONE_BY_ICON[def.icon] ?? 'var(--color-ink-2)';
 }
 
 export function workoutType(type: string): WorkoutTypeDef {

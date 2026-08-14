@@ -4,6 +4,8 @@
 	import RangePicker from '$lib/components/RangePicker.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
+	import HudPanel from '$lib/components/HudPanel.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import { formatDuration } from '$lib/metrics';
 
 	let { data } = $props();
@@ -66,7 +68,7 @@
 	/>
 {:else}
 	<div class="space-y-gutter">
-		<section class="panel grid grid-cols-2 divide-line sm:grid-cols-4 sm:divide-x">
+		<HudPanel channel="bio" class="grid grid-cols-2 divide-line sm:grid-cols-4 sm:divide-x">
 			{#each summary as item (item.label)}
 				<div class="border-line px-5 py-4 not-last:border-b sm:border-b-0">
 					<p class="label">{item.label}</p>
@@ -74,22 +76,19 @@
 					{#if item.sub}<p class="mt-0.5 text-xs text-ink-3">{item.sub}</p>{/if}
 				</div>
 			{/each}
-		</section>
+		</HudPanel>
 
-		<!-- Le notti impilate sono la metrica guida: è la vignetta che rompe il gutter. -->
-		<section class="panel panel-bleed py-5">
-			<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 md:px-8">
-				<h2 class="text-sm font-medium text-ink">Le notti, fase per fase</h2>
-				{#if regularity}<p class="text-xs text-ink-3">{regularity}</p>{/if}
-			</div>
+		<!-- Le notti impilate sono la metrica guida: è il pannello che rompe il gutter. -->
+		<HudPanel channel="bio" bleed class="py-5">
+			<SectionHeader title="Le notti, fase per fase" channel="bio" meta={regularity ?? undefined} class="mb-4 px-4 md:px-8" />
 			<div class="px-4 md:px-8">
 				<SleepChart nights={data.nights} height={280} />
 			</div>
-		</section>
+		</HudPanel>
 
 		<div class="grid gap-gutter lg:grid-cols-2">
-			<section class="panel p-5">
-				<h2 class="mb-4 text-sm font-medium text-ink">Sonno profondo</h2>
+			<HudPanel channel="bio" class="p-5">
+				<SectionHeader title="Sonno profondo" channel="bio" class="mb-4" />
 				<TimeChart
 					data={data.series.sleepDeep ?? []}
 					color="var(--color-ramp-600)"
@@ -98,10 +97,10 @@
 					height={180}
 					label="Ore di sonno profondo per notte"
 				/>
-			</section>
+			</HudPanel>
 
-			<section class="panel p-5">
-				<h2 class="mb-4 text-sm font-medium text-ink">Sonno REM</h2>
+			<HudPanel channel="bio" class="p-5">
+				<SectionHeader title="Sonno REM" channel="bio" class="mb-4" />
 				<TimeChart
 					data={data.series.sleepRem ?? []}
 					color="var(--color-ramp-250)"
@@ -110,7 +109,7 @@
 					height={180}
 					label="Ore di sonno REM per notte"
 				/>
-			</section>
+			</HudPanel>
 		</div>
 	</div>
 {/if}

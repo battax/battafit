@@ -22,7 +22,7 @@
 		height?: number;
 	}
 
-	let { points, color = 'var(--color-suit-red)', height = 34 }: Props = $props();
+	let { points, color = 'var(--color-motion)', height = 34 }: Props = $props();
 
 	let width = $state(600);
 

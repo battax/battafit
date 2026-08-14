@@ -1,12 +1,15 @@
 <script lang="ts">
 	import ActivityRings from '$lib/components/ActivityRings.svelte';
 	import TimeChart from '$lib/components/TimeChart.svelte';
-	import Sparkline from '$lib/components/Sparkline.svelte';
-	import Delta from '$lib/components/Delta.svelte';
+	import HudPanel from '$lib/components/HudPanel.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
+	import MetricCard from '$lib/components/MetricCard.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import WorkoutRow from '$lib/components/WorkoutRow.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
+	import { daySummary } from '$lib/insight';
+	import { todayRome } from '$lib/rehab';
 
 	let { data } = $props();
 
@@ -23,11 +26,25 @@
 
 	const values = (metric: string) => (data.series[metric] ?? []).map((p) => p.value);
 
+	/**
+	 * L'ultimo giorno importato è quasi sempre ieri o l'altroieri: la ghiera
+	 * oraria del quadrante si accende solo quando è davvero quello in corso,
+	 * altrimenti mostrerebbe il tempo rimasto per chiudere obiettivi già scaduti.
+	 */
+	const isToday = $derived(data.day === todayRome());
+	const hoursElapsed = $derived(
+		isToday
+			? Number(
+					new Intl.DateTimeFormat('it-IT', { hour: 'numeric', hour12: false, timeZone: 'Europe/Rome' }).format(new Date())
+				)
+			: null
+	);
+
 	/** I tre anelli, con la percentuale che è la cifra d'apertura della pagina. */
 	const rings = $derived([
-		{ label: 'Movimento', value: data.today.ringMove, goal: data.today.ringMoveGoal, unit: 'kcal', color: 'var(--color-move)' },
-		{ label: 'Esercizio', value: data.today.ringExercise, goal: data.today.ringExerciseGoal, unit: 'min', color: 'var(--color-exercise)' },
-		{ label: 'In piedi', value: data.today.ringStand, goal: data.today.ringStandGoal, unit: 'ore', color: 'var(--color-stand)' }
+		{ label: 'Movimento', value: data.today.ringMove, goal: data.today.ringMoveGoal, unit: 'kcal', dot: 'bg-move', bar: 'bg-move' },
+		{ label: 'Esercizio', value: data.today.ringExercise, goal: data.today.ringExerciseGoal, unit: 'min', dot: 'bg-exercise', bar: 'bg-exercise' },
+		{ label: 'In piedi', value: data.today.ringStand, goal: data.today.ringStandGoal, unit: 'ore', dot: 'bg-stand', bar: 'bg-stand' }
 	]);
 
 	function percent(value: number | null | undefined, goal: number | null | undefined): number | null {
@@ -35,18 +52,42 @@
 		return Math.round((value / goal) * 100);
 	}
 
-	/** Le tre tessere quiete: i numeri di oggi, senza gerarchia fra loro. */
+	/** Allenamenti del giorno mostrato, non gli ultimi in assoluto: la sintesi parla di quella giornata. */
+	const workoutsToday = $derived(
+		data.day
+			? data.workouts.filter((w) => new Date(w.startedAt).toISOString().slice(0, 10) === data.day).length
+			: 0
+	);
+
+	const summary = $derived(
+		daySummary({
+			rings: rings.map((r) => ({ value: r.value, goal: r.goal })),
+			steps: data.today.steps,
+			stepsBaseline: data.baselines.steps,
+			sleepHours: data.today.sleepAsleep,
+			workouts: workoutsToday,
+			isToday
+		})
+	);
+
+	const TONE: Record<string, string> = {
+		good: 'text-done',
+		attention: 'text-load',
+		neutral: 'text-ink-3'
+	};
+
+	/** Le tre letture rapide della giornata, di pari peso fra loro. */
 	const tiles = $derived([
-		{ label: 'Passi', value: data.today.steps, unit: '', metric: 'steps', color: 'var(--color-suit-red)', higherIsBetter: true, format: (v: number) => nf0.format(v) },
-		{ label: 'Sonno', value: data.today.sleepAsleep, unit: 'h', metric: 'sleepAsleep', color: 'var(--color-suit-blue)', higherIsBetter: true, format: (v: number) => nf1.format(v) },
-		{ label: 'Calorie attive', value: data.today.activeEnergy, unit: 'kcal', metric: 'activeEnergy', color: 'var(--color-street)', higherIsBetter: true, format: (v: number) => nf0.format(v) }
+		{ label: 'Passi', value: data.today.steps, unit: '', metric: 'steps', channel: 'motion' as const, icon: 'activity' as const, higherIsBetter: true, format: (v: number) => nf0.format(v) },
+		{ label: 'Sonno', value: data.today.sleepAsleep, unit: 'h', metric: 'sleepAsleep', channel: 'bio' as const, icon: 'sleep' as const, higherIsBetter: true, format: (v: number) => nf1.format(v) },
+		{ label: 'Calorie attive', value: data.today.activeEnergy, unit: 'kcal', metric: 'activeEnergy', channel: 'load' as const, icon: 'flame' as const, higherIsBetter: true, format: (v: number) => nf0.format(v) }
 	]);
 
-	/** I segni vitali: una riga sola divisa in tre, non tre schede uguali alle precedenti. */
+	/** I segni vitali: tutti sul canale biometrico, perché è il corpo che li riporta. */
 	const vitals = $derived([
-		{ label: 'Frequenza a riposo', metric: 'restingHr', unit: 'bpm', color: 'var(--color-rose)', href: '/cuore', higherIsBetter: false, format: (v: number) => nf0.format(v) },
-		{ label: 'Variabilità cardiaca', metric: 'hrv', unit: 'ms', color: 'var(--color-goblin)', href: '/cuore', higherIsBetter: true, format: (v: number) => nf0.format(v) },
-		{ label: 'Peso', metric: 'weight', unit: 'kg', color: 'var(--color-oscorp)', href: '/corpo', higherIsBetter: undefined, format: (v: number) => nf1.format(v) }
+		{ label: 'Frequenza a riposo', metric: 'restingHr', unit: 'bpm', icon: 'heart' as const, href: '/cuore', higherIsBetter: false, format: (v: number) => nf0.format(v) },
+		{ label: 'Variabilità cardiaca', metric: 'hrv', unit: 'ms', icon: 'activity' as const, href: '/cuore', higherIsBetter: true, format: (v: number) => nf0.format(v) },
+		{ label: 'Peso', metric: 'weight', unit: 'kg', icon: 'body' as const, href: '/corpo', higherIsBetter: undefined, format: (v: number) => nf1.format(v) }
 	]);
 </script>
 
@@ -79,84 +120,121 @@
 
 	<div class="space-y-gutter">
 		<!--
-			L'apertura è una cosa sola: gli anelli, che sono l'artefatto vero
-			dell'Apple Watch. I numeri della giornata sono scesi fra le tessere qui
-			sotto — nell'apertura facevano quattro idee in competizione.
+			Il modulo di apertura, e l'unico che comanda la pagina: il quadrante a
+			sinistra, le tre righe che lo spiegano a destra, la sintesi in parole
+			sotto. Sono la stessa informazione letta in tre modi — forma, numero,
+			frase — e stanno insieme perché servono momenti di attenzione diversi.
 		-->
-		<section class="panel flex flex-col items-center gap-7 p-6 sm:flex-row sm:gap-10 sm:p-7">
-			<ActivityRings
-				move={{ value: data.today.ringMove ?? null, goal: data.today.ringMoveGoal ?? null }}
-				exercise={{ value: data.today.ringExercise ?? null, goal: data.today.ringExerciseGoal ?? null }}
-				stand={{ value: data.today.ringStand ?? null, goal: data.today.ringStandGoal ?? null }}
-				size={172}
-				showLegend={false}
+		<HudPanel channel="motion" class="p-5 md:p-6">
+			<SectionHeader
+				title="Stato di oggi"
+				channel="motion"
+				meta={isToday ? 'giornata in corso' : 'ultima giornata importata'}
+				class="mb-5"
 			/>
 
-			<dl class="w-full flex-1 divide-y divide-line">
-				{#each rings as ring (ring.label)}
-					{@const pct = percent(ring.value, ring.goal)}
-					<div class="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0">
-						<div class="min-w-0">
-							<dt class="label flex items-center gap-2">
-								<span class="size-2 shrink-0 rounded-full" style="background: {ring.color}"></span>
-								{ring.label}
-							</dt>
-							<dd class="mt-1.5 font-mono text-xs text-ink-2">
-								{ring.value == null ? '—' : nf0.format(ring.value)} / {ring.goal ? nf0.format(ring.goal) : '—'}
-								{ring.unit}
-							</dd>
-						</div>
-						<!-- La cifra d'apertura. Resta inchiostro: l'identità la porta il pallino. -->
-						<span class="display shrink-0 text-[2.25rem] leading-none {pct == null ? 'text-ink-3' : 'text-ink'}">
-							{pct == null ? '—' : `${pct}%`}
-						</span>
-					</div>
-				{/each}
-			</dl>
-		</section>
+			<div class="flex flex-col gap-7 xl:flex-row xl:gap-8">
+				<div class="flex flex-1 flex-col items-center gap-7 sm:flex-row sm:items-start sm:gap-8">
+				<ActivityRings
+					move={{ value: data.today.ringMove ?? null, goal: data.today.ringMoveGoal ?? null }}
+					exercise={{ value: data.today.ringExercise ?? null, goal: data.today.ringExerciseGoal ?? null }}
+					stand={{ value: data.today.ringStand ?? null, goal: data.today.ringStandGoal ?? null }}
+					size={196}
+					{hoursElapsed}
+				/>
 
-		<!-- Tre tessere quiete, di pari peso fra loro. -->
+				<div class="w-full min-w-0 flex-1">
+					<dl class="divide-y divide-line">
+						{#each rings as ring (ring.label)}
+							{@const pct = percent(ring.value, ring.goal)}
+							<div class="py-3 first:pt-0 last:pb-0">
+								<div class="flex items-baseline justify-between gap-4">
+									<dt class="label flex items-center gap-2">
+										<span class="size-2 shrink-0 rounded-full {ring.dot}"></span>
+										{ring.label}
+									</dt>
+									<!-- La cifra d'apertura. Resta inchiostro: l'identità la porta il pallino. -->
+									<dd class="display shrink-0 text-[1.75rem] leading-none {pct == null ? 'text-ink-3' : 'text-ink'}">
+										{pct == null ? '—' : `${pct}%`}
+									</dd>
+								</div>
+								<p class="mt-1.5 font-mono text-xs text-ink-3">
+									{ring.value == null ? '—' : nf0.format(ring.value)} / {ring.goal ? nf0.format(ring.goal) : '—'}
+									{ring.unit}
+								</p>
+								<!--
+									La barra ripete la percentuale in forma lunga. Non è un doppione
+									della cifra: la cifra si legge, la barra si confronta con le altre
+									due senza fare aritmetica, ed è il motivo per cui le tre stanno
+									incolonnate.
+								-->
+								<div class="mt-2.5 h-1 rounded-full bg-panel-2">
+									<div
+										class="h-full rounded-full {ring.bar} [animation:fill_.9s_var(--ease-settle)_both]"
+										style="width: {Math.min(100, pct ?? 0)}%; transform-origin: left"
+									></div>
+								</div>
+							</div>
+						{/each}
+					</dl>
+				</div>
+				</div>
+
+				<!--
+					La lettura in parole. Su schermo largo prende la colonna che gli
+					anelli lascerebbero vuota; sotto i 1280px torna in fondo, perché una
+					colonna da centottanta pixel spezzerebbe ogni frase su tre righe.
+				-->
+				{#if summary.length}
+					<div class="border-line pt-4 xl:w-72 xl:shrink-0 xl:border-t-0 xl:border-l xl:pt-0 xl:pl-8 border-t">
+						<p class="label mb-3">Come sta andando</p>
+						<ul class="space-y-2.5">
+							{#each summary as clause (clause.text)}
+								<li class="flex items-baseline gap-2.5 text-sm text-ink-2">
+									<span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-current {TONE[clause.tone]}"></span>
+									<span class="min-w-0">{clause.text}</span>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+			</div>
+		</HudPanel>
+
+		<!-- Tre letture rapide, di pari peso fra loro. -->
 		<div class="grid gap-gutter sm:grid-cols-3">
 			{#each tiles as tile (tile.metric)}
-				<div class="panel p-4">
-					<p class="label">{tile.label}</p>
-					<p class="mt-2 flex items-baseline gap-1.5">
-						<span class="font-mono text-2xl font-medium tracking-tight {tile.value == null ? 'text-ink-3' : 'text-ink'}">
-							{tile.value == null ? '—' : tile.format(tile.value)}
-						</span>
-						{#if tile.unit && tile.value != null}
-							<span class="text-xs text-ink-3">{tile.unit}</span>
-						{/if}
-					</p>
-					<div class="mt-2.5 flex items-end justify-between gap-3">
-						<Delta
-							current={tile.value}
-							baseline={data.baselines[tile.metric]}
-							higherIsBetter={tile.higherIsBetter}
-							label="rispetto alla media di 30 giorni"
-						/>
-						<Sparkline values={values(tile.metric)} color={tile.color} width={78} height={22} />
-					</div>
-				</div>
+				<MetricCard
+					label={tile.label}
+					value={tile.value}
+					unit={tile.unit}
+					icon={tile.icon}
+					channel={tile.channel}
+					format={tile.format}
+					series={values(tile.metric)}
+					baseline={data.baselines[tile.metric]}
+					higherIsBetter={tile.higherIsBetter}
+				/>
 			{/each}
 		</div>
 
 		<!--
-			La vignetta che rompe il gutter. Una sola per pagina: se fossero due,
-			nessuna delle due comanderebbe più niente.
+			Il pannello che rompe il gutter. Uno solo per pagina: se fossero due,
+			nessuno dei due comanderebbe più niente.
 		-->
-		<section class="panel panel-bleed py-5">
-			<div class="mb-4 flex items-baseline justify-between gap-3 px-4 md:px-8">
-				<h2 class="text-sm font-medium text-ink">Passi negli ultimi 30 giorni</h2>
-				<a href="/attivita" class="flex items-center gap-0.5 text-xs text-ink-3 transition-colors hover:text-ink-2">
-					Attività <Icon name="chevronRight" size={13} />
-				</a>
-			</div>
+		<HudPanel channel="motion" bleed class="py-5">
+			<SectionHeader title="Passi negli ultimi 30 giorni" channel="motion" class="mb-4 px-4 md:px-8">
+				{#snippet actions()}
+					<a href="/attivita" class="flex items-center gap-0.5 text-xs text-ink-3 transition-colors hover:text-ink-2">
+						Attività <Icon name="chevronRight" size={13} />
+					</a>
+				{/snippet}
+			</SectionHeader>
 			<div class="px-4 md:px-8">
 				<TimeChart
 					data={data.series.steps ?? []}
 					mark="bar"
-					color="var(--color-suit-red)"
+					color="var(--color-motion)"
 					height={210}
 					label="Passi al giorno negli ultimi 30 giorni"
 					format={(v) => nf0.format(v)}
@@ -166,45 +244,37 @@
 						: null}
 				/>
 			</div>
-		</section>
+		</HudPanel>
 
-		<!-- I segni vitali: un pannello diviso in tre, non tre schede identiche alla riga di sopra. -->
-		<section class="panel grid divide-line sm:grid-cols-3 sm:divide-x">
+		<!-- I segni vitali. Tre schede uguali fra loro, tutte sul canale biometrico. -->
+		<div class="grid gap-gutter sm:grid-cols-3">
 			{#each vitals as item (item.metric)}
 				{@const points = data.series[item.metric] ?? []}
 				{@const current = data.today[item.metric] ?? points.filter((p) => p.value != null).at(-1)?.value ?? null}
-				<a href={item.href} class="group block p-4 not-last:border-b border-line transition-colors duration-200 hover:bg-panel-2/40 sm:not-last:border-b-0">
-					<div class="flex items-baseline justify-between gap-2">
-						<span class="label">{item.label}</span>
-						<Icon name="chevronRight" size={13} class="text-ink-3 transition-colors group-hover:text-ink-2" />
-					</div>
-					<p class="mt-2 flex items-baseline gap-1.5">
-						<span class="font-mono text-2xl font-medium tracking-tight {current == null ? 'text-ink-3' : 'text-ink'}">
-							{current == null ? '—' : item.format(current)}
-						</span>
-						<span class="text-xs text-ink-3">{item.unit}</span>
-					</p>
-					<div class="mt-2.5 flex items-end justify-between gap-3">
-						<Delta
-							{current}
-							baseline={data.baselines[item.metric]}
-							higherIsBetter={item.higherIsBetter}
-							label="rispetto alla media di 30 giorni"
-						/>
-						<Sparkline values={points.map((p) => p.value)} color={item.color} width={78} height={22} />
-					</div>
-				</a>
+				<MetricCard
+					label={item.label}
+					value={current}
+					unit={item.unit}
+					icon={item.icon}
+					channel="bio"
+					href={item.href}
+					format={item.format}
+					series={points.map((p) => p.value)}
+					baseline={data.baselines[item.metric]}
+					higherIsBetter={item.higherIsBetter}
+				/>
 			{/each}
-		</section>
+		</div>
 
 		<!-- Elenco, non schede: gli allenamenti sono righe di un registro. -->
-		<section class="panel overflow-hidden">
-			<div class="flex items-baseline justify-between gap-3 p-5 pb-3">
-				<h2 class="text-sm font-medium text-ink">Ultimi allenamenti</h2>
-				<a href="/allenamenti" class="flex items-center gap-0.5 text-xs text-ink-3 transition-colors hover:text-ink-2">
-					Tutti <Icon name="chevronRight" size={13} />
-				</a>
-			</div>
+		<HudPanel channel="motion" class="overflow-hidden">
+			<SectionHeader title="Ultimi allenamenti" channel="motion" class="p-5 pb-3">
+				{#snippet actions()}
+					<a href="/allenamenti" class="flex items-center gap-0.5 text-xs text-ink-3 transition-colors hover:text-ink-2">
+						Tutti <Icon name="chevronRight" size={13} />
+					</a>
+				{/snippet}
+			</SectionHeader>
 
 			{#if data.workouts.length}
 				<ul class="divide-y divide-line border-t border-line">
@@ -215,6 +285,6 @@
 			{:else}
 				<p class="px-5 pb-5 text-sm text-ink-3">Nessun allenamento registrato.</p>
 			{/if}
-		</section>
+		</HudPanel>
 	</div>
 {/if}

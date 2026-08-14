@@ -221,6 +221,31 @@ export async function getWorkoutNeighbours(startedAt: Date) {
 	return { prev: prev?.id ?? null, next: next?.id ?? null };
 }
 
+/**
+ * Le sessioni precedenti della stessa disciplina, per dire se questa è andata
+ * meglio o peggio del solito.
+ *
+ * Il confronto è con le dieci precedenti e non con tutte: una corsa di oggi
+ * paragonata alla media di sei anni fa non dice niente di utile, perché in
+ * mezzo c'è un'operazione. Dieci sessioni sono il passato recente, che è
+ * l'unico termine di paragone che si riconosce.
+ */
+export async function getSameTypeHistory(type: string, before: Date, limit = 10) {
+	return db
+		.select({
+			id: workouts.id,
+			startedAt: workouts.startedAt,
+			durationSec: workouts.durationSec,
+			distanceKm: workouts.distanceKm,
+			energyKcal: workouts.energyKcal,
+			avgHr: workouts.avgHr
+		})
+		.from(workouts)
+		.where(and(eq(workouts.type, type), lt(workouts.startedAt, before)))
+		.orderBy(desc(workouts.startedAt))
+		.limit(limit);
+}
+
 export async function getSleep(from: string, to: string) {
 	return db
 		.select()

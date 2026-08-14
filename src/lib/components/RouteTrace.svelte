@@ -16,7 +16,7 @@
 		color?: string;
 	}
 
-	let { route, height = 300, color = 'var(--color-electro)' }: Props = $props();
+	let { route, height = 300, color = 'var(--color-s7)' }: Props = $props();
 
 	let width = $state(600);
 	const PAD = 24;

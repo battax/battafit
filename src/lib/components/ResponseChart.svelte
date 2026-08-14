@@ -159,13 +159,13 @@
 					{/each}
 
 					<!-- Sopra 3 il dolore smette di essere rumore: la soglia è disegnata, non lasciata alla memoria. -->
-					<rect x="0" y="0" width={innerW} height={y(PAIN_ALERT)} fill="var(--color-suit-red)" opacity="0.05" />
+					<rect x="0" y="0" width={innerW} height={y(PAIN_ALERT)} fill="var(--color-motion)" opacity="0.05" />
 					<line
 						x1="0"
 						x2={innerW}
 						y1={y(PAIN_ALERT)}
 						y2={y(PAIN_ALERT)}
-						stroke="var(--color-suit-red)"
+						stroke="var(--color-motion)"
 						stroke-width="1"
 						stroke-dasharray="3 4"
 						opacity="0.6"
@@ -175,7 +175,7 @@
 						<path
 							d={linePath(seg)}
 							fill="none"
-							stroke="var(--color-suit-red)"
+							stroke="var(--color-motion)"
 							stroke-width="2"
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -183,7 +183,7 @@
 					{/each}
 
 					{#each painPoints as p (p.day)}
-						<circle cx={x(p.date)} cy={y(p.pain as number)} r="3" fill="var(--color-suit-red)" />
+						<circle cx={x(p.date)} cy={y(p.pain as number)} r="3" fill="var(--color-motion)" />
 					{/each}
 
 					<!-- La fascia del gonfiore, sotto l'asse: scala propria, nessuna misura in comune col dolore. -->
@@ -197,7 +197,7 @@
 								width={barW}
 								height={mark.h}
 								rx="1"
-								fill="var(--color-street)"
+								fill="var(--color-load)"
 								opacity={mark.opacity}
 							/>
 						{/if}
@@ -224,8 +224,8 @@
 							stroke-width="1"
 						/>
 						{#if active.pain != null}
-							<circle cx={x(active.date)} cy={y(active.pain)} r="6" fill="var(--color-panel)" />
-							<circle cx={x(active.date)} cy={y(active.pain)} r="4" fill="var(--color-suit-red)" />
+							<circle cx={x(active.date)} cy={y(active.pain)} r="6" fill="var(--color-panel-solid)" />
+							<circle cx={x(active.date)} cy={y(active.pain)} r="4" fill="var(--color-motion)" />
 						{/if}
 					{/if}
 				</g>
@@ -240,12 +240,12 @@
 				<p class="text-[10px] whitespace-nowrap text-ink-3 first-letter:uppercase">{formatDayLong(active.day)}</p>
 				<dl class="mt-1 space-y-0.5 text-[11px] whitespace-nowrap">
 					<div class="flex items-center gap-2">
-						<span class="size-1.5 rounded-full bg-suit-red"></span>
+						<span class="size-1.5 rounded-full bg-motion"></span>
 						<dt class="text-ink-3">Dolore</dt>
 						<dd class="ml-auto font-mono text-ink">{active.pain ?? '—'}{active.pain != null ? '/10' : ''}</dd>
 					</div>
 					<div class="flex items-center gap-2">
-						<span class="size-1.5 rounded-full bg-street"></span>
+						<span class="size-1.5 rounded-full bg-load"></span>
 						<dt class="text-ink-3">Gonfiore</dt>
 						<dd class="ml-auto font-mono text-ink">
 							{active.swelling ? (SWELLING_BY_KEY.get(active.swelling)?.label ?? '—') : '—'}
@@ -257,13 +257,13 @@
 
 		<ul class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
 			<li class="flex items-center gap-1.5 text-xs text-ink-2">
-				<span class="h-0.5 w-3 rounded-full bg-suit-red"></span> Dolore 0–10
+				<span class="h-0.5 w-3 rounded-full bg-motion"></span> Dolore 0–10
 			</li>
 			<li class="flex items-center gap-1.5 text-xs text-ink-2">
-				<span class="h-2.5 w-2 rounded-[2px] bg-street"></span> Gonfiore, più alto = più forte
+				<span class="h-2.5 w-2 rounded-[2px] bg-load"></span> Gonfiore, più alto = più forte
 			</li>
 			<li class="flex items-center gap-1.5 text-xs text-ink-3">
-				<span class="h-px w-3 border-t border-dashed border-suit-red"></span> Soglia {PAIN_ALERT}
+				<span class="h-px w-3 border-t border-dashed border-motion"></span> Soglia {PAIN_ALERT}
 			</li>
 		</ul>
 	{/if}

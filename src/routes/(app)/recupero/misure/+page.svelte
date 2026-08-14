@@ -30,7 +30,7 @@
 		l'unica cosa segnalata: fra tutte le misure del metro, questa è la sola che
 		risponde alla domanda aperta. Le altre stanno in tabella.
 	-->
-	<section class="panel panel-bleed px-4 py-5 md:px-8">
+	<section class="panel hud-load panel-bleed px-4 py-5 md:px-8">
 		<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">Le due cosce a confronto</h2>
 			<p class="text-xs text-ink-3">La destra è il lato operato; il divario è lo spazio fra le due punte</p>
@@ -55,14 +55,14 @@
 					<li>
 						<div class="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
 							<p class="font-mono text-xs text-ink-2">{formatDayShort(pair.day)}</p>
-							<p class="font-mono text-xs {Math.abs(pair.gap) >= 1 ? 'text-street' : 'text-ink-3'}">
+							<p class="font-mono text-xs {Math.abs(pair.gap) >= 1 ? 'text-load' : 'text-ink-3'}">
 								{nf1.format(Math.abs(pair.gap))} cm di divario
 								<span class="text-ink-3">· più sottile la {pair.thinner}</span>
 							</p>
 						</div>
 
 						<div class="space-y-1.5">
-							{#each [{ side: 'Destra', value: pair.right, tone: 'bg-suit-red' }, { side: 'Sinistra', value: pair.left, tone: 'bg-suit-blue' }] as bar (bar.side)}
+							{#each [{ side: 'Destra', value: pair.right, tone: 'bg-motion' }, { side: 'Sinistra', value: pair.left, tone: 'bg-bio' }] as bar (bar.side)}
 								<div class="flex items-center gap-3">
 									<span class="w-16 shrink-0 text-xs text-ink-3">{bar.side}</span>
 									<div class="h-3 min-w-0 flex-1 rounded-[2px] bg-panel-2">
@@ -82,7 +82,7 @@
 						Il divario si è ridotto di <span class="font-mono text-ink">{nf1.format(closed)} cm</span> dalla prima
 						misurazione.
 					{:else if closed < -0.05}
-						Il divario è cresciuto di <span class="font-mono text-street">{nf1.format(-closed)} cm</span> dalla prima
+						Il divario è cresciuto di <span class="font-mono text-load">{nf1.format(-closed)} cm</span> dalla prima
 						misurazione.
 					{:else}
 						Il divario è fermo dov'era alla prima misurazione.
@@ -96,7 +96,7 @@
 		{/if}
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<div class="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">Calendario del metro</h2>
 			<p class="text-xs text-ink-3">Una misurazione ogni quattro settimane</p>
@@ -116,7 +116,7 @@
 		</ul>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-4 text-sm font-medium text-ink">
 			{draft ? `Modifica la misurazione del ${formatDayShort(draft.day)}` : 'Nuova misurazione'}
 		</h2>
@@ -144,7 +144,7 @@
 					type="checkbox"
 					name="photo"
 					checked={draft?.photo ?? false}
-					class="size-4 rounded-[3px] border border-line-strong bg-panel-2 accent-suit-red"
+					class="size-4 rounded-[3px] border border-line-strong bg-panel-2 accent-motion"
 				/>
 				Foto scattata
 			</label>
@@ -162,7 +162,7 @@
 			<div class="flex items-center gap-4">
 				<button
 					type="submit"
-					class="rounded-[3px] bg-suit-red px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
+					class="rounded-[3px] bg-motion px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
 				>
 					Salva la misurazione
 				</button>
@@ -174,7 +174,7 @@
 	</section>
 
 	{#if data.measures.length}
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="mb-4 text-sm font-medium text-ink">Tutte le misure</h2>
 			<!--
 				`relative` non è decorativo: senza, l'etichetta `sr-only` dell'ultima

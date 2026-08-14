@@ -19,7 +19,7 @@
 		average?: number | null;
 	}
 
-	let { samples, height = 200, color = 'var(--color-suit-red)', average = null }: Props = $props();
+	let { samples, height = 200, color = 'var(--color-motion)', average = null }: Props = $props();
 
 	let width = $state(720);
 	let hovered = $state<number | null>(null);
@@ -143,7 +143,7 @@
 
 				{#if active}
 					<line x1={x(active.offsetSec)} x2={x(active.offsetSec)} y1="0" y2={innerH} stroke="var(--color-line-strong)" stroke-width="1" />
-					<circle cx={x(active.offsetSec)} cy={y(active.bpm)} r="6" fill="var(--color-panel)" />
+					<circle cx={x(active.offsetSec)} cy={y(active.bpm)} r="6" fill="var(--color-panel-solid)" />
 					<circle cx={x(active.offsetSec)} cy={y(active.bpm)} r="4" fill={color} />
 				{/if}
 			</g>

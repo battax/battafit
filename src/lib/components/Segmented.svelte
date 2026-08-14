@@ -78,10 +78,10 @@
 					for={id}
 					class="flex min-h-9 cursor-pointer items-center justify-center rounded-[3px] border border-line bg-panel-2 px-2.5 text-sm text-ink-2
 						transition-colors duration-150 select-none hover:border-line-strong hover:text-ink
-						peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-electro
+						peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-bio-bright
 						{option.value === ''
 						? 'peer-checked:border-line-strong peer-checked:bg-panel-2 peer-checked:text-ink-2'
-						: 'peer-checked:border-suit-red peer-checked:bg-suit-red/15 peer-checked:text-ink'}"
+						: 'peer-checked:border-motion peer-checked:bg-motion/15 peer-checked:text-ink'}"
 				>
 					{option.label}
 				</label>

@@ -18,7 +18,7 @@
 		markLast?: boolean;
 	}
 
-	let { values, color = 'var(--color-suit-blue)', width = 96, height = 28, markLast = true }: Props = $props();
+	let { values, color = 'var(--color-bio)', width = 96, height = 28, markLast = true }: Props = $props();
 
 	const clean = $derived(
 		values.map((v, i) => ({ i, v })).filter((d): d is { i: number; v: number } => d.v != null && Number.isFinite(d.v))

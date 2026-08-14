@@ -5,7 +5,9 @@
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
-	import { workoutType } from '$lib/workout-types';
+	import HudPanel from '$lib/components/HudPanel.svelte';
+	import MetricCard from '$lib/components/MetricCard.svelte';
+	import { workoutType, workoutTone } from '$lib/workout-types';
 	import { formatDuration } from '$lib/metrics';
 
 	let { data } = $props();
@@ -53,32 +55,31 @@
 	/>
 {:else}
 	<div class="space-y-gutter">
-		<section class="panel grid grid-cols-2 divide-line sm:grid-cols-4 sm:divide-x">
-			<div class="border-line px-5 py-4 not-last:border-b sm:border-b-0">
-				<p class="label">Sessioni</p>
-				<p class="mt-1.5 font-mono text-xl font-medium tracking-tight text-ink">{nf0.format(totals.count)}</p>
-			</div>
-			<div class="border-line px-5 py-4 not-last:border-b sm:border-b-0">
-				<p class="label">Tempo totale</p>
-				<p class="mt-1.5 font-mono text-xl font-medium tracking-tight text-ink">{formatDuration(totals.seconds)}</p>
-			</div>
-			<div class="border-line px-5 py-4 not-last:border-b sm:border-b-0">
-				<p class="label">Distanza</p>
-				<p class="mt-1.5 font-mono text-xl font-medium tracking-tight text-ink">{nf1.format(totals.km)} <span class="text-sm text-ink-3">km</span></p>
-			</div>
-			<div class="border-line px-5 py-4 not-last:border-b sm:border-b-0">
-				<p class="label">Energia</p>
-				<p class="mt-1.5 font-mono text-xl font-medium tracking-tight text-ink">{nf0.format(totals.kcal)} <span class="text-sm text-ink-3">kcal</span></p>
-			</div>
-		</section>
+		<div class="grid grid-cols-2 gap-gutter lg:grid-cols-4">
+			<MetricCard label="Sessioni" value={totals.count} channel="motion" icon="workouts" format={(v) => nf0.format(v)} size="lg" />
+			<MetricCard
+				label="Tempo totale"
+				value={totals.seconds}
+				channel="motion"
+				icon="clock"
+				format={(v) => formatDuration(v)}
+				size="lg"
+			/>
+			<MetricCard label="Distanza" value={totals.km} unit="km" channel="motion" icon="route" format={(v) => nf1.format(v)} size="lg" />
+			<MetricCard label="Energia" value={totals.kcal} unit="kcal" channel="load" icon="flame" format={(v) => nf0.format(v)} size="lg" />
+		</div>
 
-		<!-- Filtro per disciplina, in una riga sopra l'elenco. -->
+		<!--
+			Filtro per disciplina. Ogni voce porta il pallino del proprio colore,
+			che è lo stesso della barretta nell'elenco qui sotto: si sceglie il
+			filtro e si ritrova la stessa tinta sulle righe che restano.
+		-->
 		<nav aria-label="Filtra per tipo" class="flex flex-wrap gap-1.5">
 			<a
 				href={withParams({ tipo: null })}
 				aria-current={!data.type ? 'page' : undefined}
-				class="rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors duration-150
-					{!data.type ? 'bg-panel-2 text-ink' : 'text-ink-3 hover:bg-panel hover:text-ink-2'}"
+				class="rounded-[3px] border px-2.5 py-1.5 text-xs font-medium transition-colors duration-150
+					{!data.type ? 'border-line-strong bg-panel-2 text-ink' : 'border-transparent text-ink-3 hover:bg-panel-2/50 hover:text-ink-2'}"
 			>
 				Tutti
 			</a>
@@ -88,9 +89,10 @@
 				<a
 					href={withParams({ tipo: t.type })}
 					aria-current={active ? 'page' : undefined}
-					class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors duration-150
-						{active ? 'bg-panel-2 text-ink' : 'text-ink-3 hover:bg-panel hover:text-ink-2'}"
+					class="flex items-center gap-1.5 rounded-[3px] border px-2.5 py-1.5 text-xs font-medium transition-colors duration-150
+						{active ? 'border-line-strong bg-panel-2 text-ink' : 'border-transparent text-ink-3 hover:bg-panel-2/50 hover:text-ink-2'}"
 				>
+					<span class="size-1.5 shrink-0 rounded-full" style="background: {workoutTone(def)}"></span>
 					<Icon name={def.icon} size={13} />
 					{def.label}
 					<span class="tabular text-ink-3">{t.n}</span>
@@ -99,20 +101,20 @@
 		</nav>
 
 		{#if data.workouts.length}
-			<section class="panel overflow-hidden">
+			<HudPanel channel="motion" class="overflow-hidden">
 				<ul class="divide-y divide-line">
 					{#each data.workouts as workout (workout.id)}
 						<li><WorkoutRow {workout} /></li>
 					{/each}
 				</ul>
-			</section>
+			</HudPanel>
 
 			{#if lastPage > 1}
 				<nav aria-label="Pagine" class="flex items-center justify-between gap-3">
 					<a
 						href={withParams({ pagina: String(data.pageNumber - 1) })}
 						aria-disabled={data.pageNumber <= 1}
-						class="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs text-ink-2 transition-colors hover:bg-panel
+						class="flex items-center gap-1 rounded-[3px] px-2.5 py-1.5 text-xs text-ink-2 transition-colors hover:bg-panel-2/60
 							{data.pageNumber <= 1 ? 'pointer-events-none opacity-40' : ''}"
 					>
 						<Icon name="chevronLeft" size={13} /> Precedenti
@@ -121,7 +123,7 @@
 					<a
 						href={withParams({ pagina: String(data.pageNumber + 1) })}
 						aria-disabled={data.pageNumber >= lastPage}
-						class="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs text-ink-2 transition-colors hover:bg-panel
+						class="flex items-center gap-1 rounded-[3px] px-2.5 py-1.5 text-xs text-ink-2 transition-colors hover:bg-panel-2/60
 							{data.pageNumber >= lastPage ? 'pointer-events-none opacity-40' : ''}"
 					>
 						Successivi <Icon name="chevronRight" size={13} />

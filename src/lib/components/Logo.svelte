@@ -26,7 +26,7 @@
 	/>
 	{#if showWordmark}
 		<span class="text-[15px] font-semibold tracking-[-0.02em] text-ink">
-			Batta<span class="text-suit-red">Fit</span>
+			Batta<span class="text-motion">Fit</span>
 		</span>
 	{/if}
 </span>

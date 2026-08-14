@@ -31,7 +31,7 @@
 		può modificare da nessun form: arrivano dalle indicazioni cliniche e l'app
 		li riporta, non li interpreta.
 	-->
-	<section class="panel panel-bleed border-y-warning/40 bg-warning/5 px-4 py-5 md:px-8">
+	<section class="panel panel-bleed hud-alert px-4 py-5 md:px-8">
 		<div class="mb-4 flex items-center gap-2">
 			<span class="text-warning"><Icon name="warning" size={17} /></span>
 			<h2 class="text-sm font-medium text-ink">Segnali da non ignorare</h2>
@@ -47,7 +47,7 @@
 		</ul>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-1 text-sm font-medium text-ink">L'intervento</h2>
 		<p class="text-sm text-ink-2">{SURGERY_LABEL}</p>
 		<p class="mt-2 font-mono text-xs text-ink-3">
@@ -56,7 +56,7 @@
 	</section>
 
 	<!-- La cronologia è una sequenza vera, quindi le date la ordinano e il conto alla rovescia dice quanto manca. -->
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-4 text-sm font-medium text-ink">Cronologia clinica</h2>
 
 		<ul class="divide-y divide-line">
@@ -122,7 +122,7 @@
 		</form>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-1 text-sm font-medium text-ink">Obiettivi</h2>
 		<p class="mb-4 text-xs text-ink-3">
 			Questi numeri alimentano la formula d'oro e i confronti del registro. Un campo lasciato vuoto torna al valore di
@@ -154,7 +154,7 @@
 
 			<button
 				type="submit"
-				class="rounded-[3px] bg-suit-red px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
+				class="rounded-[3px] bg-motion px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
 			>
 				Salva gli obiettivi
 			</button>
@@ -179,7 +179,7 @@
 		</p>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-4 flex items-center gap-2 text-sm font-medium text-ink">
 			<span class="text-ink-3"><Icon name="stethoscope" size={16} /></span>
 			Recapiti
@@ -219,7 +219,7 @@
 		</ul>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-4 text-sm font-medium text-ink">Da dove viene il protocollo</h2>
 		<ul class="divide-y divide-line">
 			{#each SOURCES as source (source.url)}
@@ -228,7 +228,7 @@
 						href={source.url}
 						target="_blank"
 						rel="noreferrer noopener"
-						class="text-sm text-ink transition-colors hover:text-suit-blue"
+						class="text-sm text-ink transition-colors hover:text-bio"
 					>
 						{source.title}
 					</a>

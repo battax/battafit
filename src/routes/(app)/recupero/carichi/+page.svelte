@@ -30,7 +30,7 @@
 		problema aperto: il carico che regge un lato rispetto all'altro è l'unica
 		misura che, a ogni seduta, dice se il divario si sta chiudendo.
 	-->
-	<section class="panel panel-bleed px-4 py-5 md:px-8">
+	<section class="panel hud-load panel-bleed px-4 py-5 md:px-8">
 		<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">Destro contro sinistro</h2>
 			<p class="text-xs text-ink-3">Carico migliore per lato, il destro è quello operato</p>
@@ -47,14 +47,14 @@
 					<li>
 						<div class="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
 							<p class="text-sm text-ink">{row.exercise}</p>
-							<p class="font-mono text-xs {row.deficit >= 10 ? 'text-street' : 'text-ink-3'}">
+							<p class="font-mono text-xs {row.deficit >= 10 ? 'text-load' : 'text-ink-3'}">
 								{row.deficit < 0.5 ? 'in pari' : `${nf0.format(row.deficit)}% di scarto`}
 								{#if row.weaker}<span class="text-ink-3"> · più debole il {row.weaker}</span>{/if}
 							</p>
 						</div>
 
 						<div class="space-y-1.5">
-							{#each [{ side: 'Destro', value: row.right, tone: 'bg-suit-red' }, { side: 'Sinistro', value: row.left, tone: 'bg-suit-blue' }] as bar (bar.side)}
+							{#each [{ side: 'Destro', value: row.right, tone: 'bg-motion' }, { side: 'Sinistro', value: row.left, tone: 'bg-bio' }] as bar (bar.side)}
 								<div class="flex items-center gap-3">
 									<span class="w-16 shrink-0 text-xs text-ink-3">{bar.side}</span>
 									<div class="h-3 min-w-0 flex-1 rounded-[2px] bg-panel-2">
@@ -71,7 +71,7 @@
 	</section>
 
 	{#if data.best.length}
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="mb-4 text-sm font-medium text-ink">Carichi migliori</h2>
 			<!-- `relative` per la stessa ragione della tabella in Misure: un `sr-only` dentro una tabella che scorre sfonda il viewport. -->
 			<div class="relative overflow-x-auto">
@@ -102,7 +102,7 @@
 		</section>
 	{/if}
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-4 text-sm font-medium text-ink">Aggiungi una serie</h2>
 
 		{#if form?.error}
@@ -162,7 +162,7 @@
 
 			<button
 				type="submit"
-				class="flex items-center gap-2 rounded-[3px] bg-suit-red px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
+				class="flex items-center gap-2 rounded-[3px] bg-motion px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
 			>
 				<Icon name="plus" size={15} />
 				Aggiungi
@@ -170,7 +170,7 @@
 		</form>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<h2 class="mb-4 text-sm font-medium text-ink">Registro</h2>
 
 		{#if !data.rows.length}

@@ -71,7 +71,7 @@
 			far cambiare il programma della settimana: metterla in fondo, dopo i
 			macronutrienti, direbbe che conta meno.
 		-->
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="mb-4 text-sm font-medium text-ink">Il ginocchio</h2>
 			<div class="space-y-5">
 				<Segmented
@@ -91,7 +91,7 @@
 			</div>
 		</section>
 
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="mb-4 text-sm font-medium text-ink">Le sedute</h2>
 			<div class="grid gap-5 sm:grid-cols-2">
 				<Segmented
@@ -123,7 +123,7 @@
 			sincronizzazione arriva al prossimo import mentre il registro si compila
 			la sera stessa — e perché il diario non si tiene tutti i giorni.
 		-->
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="mb-1 text-sm font-medium text-ink">Alimentazione</h2>
 			<p class="mb-4 text-xs text-ink-3">
 				{#if data.sensed.proteinG != null || data.sensed.calories != null}
@@ -176,7 +176,7 @@
 			</div>
 		</section>
 
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="mb-1 text-sm font-medium text-ink">Misure</h2>
 			<p class="mb-4 text-xs text-ink-3">
 				Passi, sonno e minuti di corsa non si chiedono: arrivano dall'orologio e si vedono qui sotto.
@@ -216,7 +216,7 @@
 			</dl>
 		</section>
 
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<label for="note" class="label mb-2 block">Note</label>
 			<textarea
 				id="note"
@@ -230,7 +230,7 @@
 		<div class="flex items-center gap-4">
 			<button
 				type="submit"
-				class="rounded-[3px] bg-suit-red px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
+				class="rounded-[3px] bg-motion px-4 py-2.5 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
 			>
 				Salva la giornata
 			</button>
@@ -241,7 +241,7 @@
 	</form>
 
 	<!-- La cronologia elenca solo i giorni compilati: 91 righe vuote non sono uno storico. -->
-	<section class="panel panel-bleed px-4 py-5 md:px-8">
+	<section class="panel hud-load panel-bleed px-4 py-5 md:px-8">
 		<h2 class="mb-4 text-sm font-medium text-ink">Giorni registrati</h2>
 
 		{#if !data.history.length}
@@ -272,10 +272,10 @@
 										{formatDayShort(row.day)}
 									</a>
 								</th>
-								<td class="py-2.5 text-right font-mono {row.pain != null && row.pain >= 3 ? 'text-street' : 'text-ink'}">
+								<td class="py-2.5 text-right font-mono {row.pain != null && row.pain >= 3 ? 'text-load' : 'text-ink'}">
 									{row.pain ?? '—'}
 								</td>
-								<td class="py-2.5 text-right {swelling && swelling.severity > 0 ? 'text-street' : 'text-ink-3'}">
+								<td class="py-2.5 text-right {swelling && swelling.severity > 0 ? 'text-load' : 'text-ink-3'}">
 									{swelling?.label ?? '—'}
 								</td>
 								<td class="py-2.5 text-right">

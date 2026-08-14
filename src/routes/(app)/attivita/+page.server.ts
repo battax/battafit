@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { getManySeries } from '$lib/server/queries';
-import { resolveRange } from '$lib/range';
+import { previousRange, resolveRange } from '$lib/range';
 
 const METRICS = [
 	'steps',
@@ -21,9 +21,29 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 	const { latestDay, empty } = await parent();
 	const range = resolveRange(url.searchParams.get('periodo'), latestDay);
 
-	if (empty) return { range, series: {}, totals: null, ringsClosed: 0, daysWithData: 0 };
+	if (empty)
+		return {
+			range,
+			series: {},
+			totals: null,
+			ringsClosed: 0,
+			daysWithData: 0,
+			previous: null,
+			best: null as { day: string; value: number } | null
+		};
 
-	const series = await getManySeries(METRICS, range.from, range.to);
+	/**
+	 * Il periodo precedente di pari durata serve solo al pannello Insight, e solo
+	 * per i passi: è la metrica guida della pagina, e chiedere al database anche
+	 * le altre cinque raddoppierebbe le query per delle frasi che nessuno ha
+	 * chiesto. Su "Tutto" non esiste un periodo prima, e il confronto sparisce.
+	 */
+	const prev = previousRange(range);
+
+	const [series, prevSeries] = await Promise.all([
+		getManySeries(METRICS, range.from, range.to),
+		prev ? getManySeries(['steps'], prev.from, prev.to) : Promise.resolve({} as Record<string, never[]>)
+	]);
 
 	const sum = (metric: string) =>
 		(series[metric] ?? []).reduce((acc, p) => acc + (p.value ?? 0), 0);
@@ -59,9 +79,25 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 
 	const daysWithData = new Set((series.steps ?? []).filter((p) => p.value != null).map((p) => p.day)).size;
 
+	/** Media al giorno del periodo prima, sulle sue giornate con dati: solo così è confrontabile. */
+	const prevPoints = (prevSeries.steps ?? []).filter((p) => p.value != null);
+	const previous = prevPoints.length
+		? { stepsPerDay: prevPoints.reduce((a, p) => a + (p.value ?? 0), 0) / prevPoints.length }
+		: null;
+
+	/** Il giorno con più passi del periodo: è l'unico picco che vale la pena nominare. */
+	const best = (series.steps ?? [])
+		.filter((p) => p.value != null)
+		.reduce<{ day: string; value: number } | null>(
+			(acc, p) => (acc == null || (p.value as number) > acc.value ? { day: p.day, value: p.value as number } : acc),
+			null
+		);
+
 	return {
 		range,
 		series,
+		previous,
+		best,
 		totals: {
 			steps: sum('steps'),
 			distance: sum('distance'),

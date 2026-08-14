@@ -5,7 +5,13 @@
 	let { children, data } = $props();
 
 	/**
-	 * Le sei viste della sezione.
+	 * Le sette viste della sezione.
+	 *
+	 * `Prontezza` sta per prima ed è l'unica che non si compila: legge i sensori
+	 * e li confronta con la propria base. Le altre sei sono il protocollo, che si
+	 * scrive a mano. Sono nella stessa sezione perché rispondono alla stessa
+	 * domanda da due lati — come sta andando questo ginocchio — e tenerle in due
+	 * posti diversi obbligherebbe a confrontarle a memoria.
 	 *
 	 * Sono schede e non voci nella navigazione principale perché condividono un
 	 * unico contesto — questo blocco di tredici settimane — e si passa dall'una
@@ -17,6 +23,7 @@
 	 * ripeterli sei volte li farebbe sembrare sei sezioni diverse.
 	 */
 	const TABS = [
+		{ href: '/recupero/prontezza', label: 'Prontezza' },
 		{ href: '/recupero', label: 'Oggi' },
 		{ href: '/recupero/registro', label: 'Registro' },
 		{ href: '/recupero/corsa', label: 'Corsa' },

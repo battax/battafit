@@ -22,16 +22,27 @@
 	}
 </script>
 
-<nav aria-label="Periodo" class="flex flex-wrap items-center gap-1">
+<!--
+	Un solo blocco con i separatori interni, non cinque pastiglie staccate: le
+	scelte sono una scala ordinata dal più stretto al più largo, e tenerle
+	attaccate è quello che la fa leggere come una scala.
+-->
+<nav
+	aria-label="Periodo"
+	class="flex items-center divide-x divide-line overflow-hidden rounded-[3px] border border-line"
+>
 	{#each RANGES as range (range.key)}
 		{@const isActive = range.key === active}
 		<a
 			href={hrefFor(range.key)}
 			aria-current={isActive ? 'page' : undefined}
 			data-sveltekit-noscroll
-			class="rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors duration-150
-				{isActive ? 'bg-panel-2 text-ink' : 'text-ink-3 hover:bg-panel hover:text-ink-2'}"
+			class="relative px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors duration-150
+				{isActive ? 'bg-motion/12 text-ink' : 'text-ink-3 hover:bg-panel-2/50 hover:text-ink-2'}"
 		>
+			{#if isActive}
+				<span class="absolute inset-x-0 bottom-0 h-[2px] bg-motion"></span>
+			{/if}
 			{range.label}
 		</a>
 	{/each}

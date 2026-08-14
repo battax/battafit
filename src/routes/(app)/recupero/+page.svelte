@@ -39,7 +39,7 @@
 			bene: sono l'unica parte della sezione in cui il protocollo dice di
 			fermarsi, e sotto a un grafico non li leggerebbe nessuno.
 		-->
-		<section class="panel border-warning/40 bg-warning/5 p-4" aria-label="Segnali da valutare">
+		<section class="panel hud-alert p-4" aria-label="Segnali da valutare">
 			<ul class="space-y-2.5">
 				{#each data.alerts as alert (alert.sign)}
 					<li class="flex gap-2.5">
@@ -55,7 +55,7 @@
 	{/if}
 
 	<!-- La riga di oggi: o manca, e allora è l'unica cosa da fare, o c'è, e si rilegge in un colpo d'occhio. -->
-	<section class="panel p-4">
+	<section class="panel hud-load p-4">
 		{#if !logged}
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<div class="min-w-0">
@@ -64,7 +64,7 @@
 				</div>
 				<a
 					href="/recupero/registro"
-					class="flex items-center gap-2 rounded-[3px] bg-suit-red px-3.5 py-2 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
+					class="flex items-center gap-2 rounded-[3px] bg-motion px-3.5 py-2 text-sm font-medium text-ink transition-opacity duration-150 hover:opacity-90"
 				>
 					<Icon name="plus" size={15} />
 					Compila
@@ -81,7 +81,7 @@
 					</div>
 					<div>
 						<dt class="label">Gonfiore</dt>
-						<dd class="mt-1 text-lg {swellingToday && swellingToday !== 'No' ? 'text-street' : 'text-ink'}">
+						<dd class="mt-1 text-lg {swellingToday && swellingToday !== 'No' ? 'text-load' : 'text-ink'}">
 							{swellingToday ?? '—'}
 						</dd>
 					</div>
@@ -107,7 +107,7 @@
 	</section>
 
 	<!-- Il blocco intero, che è il contesto di ogni altra cosa in questa pagina. -->
-	<section class="panel panel-bleed px-4 py-5 md:px-8">
+	<section class="panel hud-load panel-bleed px-4 py-5 md:px-8">
 		<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">Le tredici settimane</h2>
 			<p class="text-xs text-ink-3">Regole della formula d'oro rispettate, settimana per settimana</p>
@@ -119,7 +119,7 @@
 			{#each data.milestones as m (m.id)}
 				{@const past = m.day < data.today}
 				<li class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2.5">
-					<span class="font-mono text-xs {past ? 'text-ink-3' : 'text-street'}">{formatDayShort(m.day)}</span>
+					<span class="font-mono text-xs {past ? 'text-ink-3' : 'text-load'}">{formatDayShort(m.day)}</span>
 					<span class="text-sm {past ? 'text-ink-3' : 'text-ink'}">{m.title}</span>
 					<span class="ml-auto font-mono text-xs text-ink-3">{countdown(m.day)}</span>
 				</li>
@@ -132,7 +132,7 @@
 		e si legge da sola. Ridurla a una percentuale unica nasconderebbe proprio la
 		riga saltata, che è l'unica informazione utile.
 	-->
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">La formula d'oro</h2>
 			<p class="font-mono text-xs text-ink-3">
@@ -158,7 +158,7 @@
 					</div>
 
 					{#if rule.target === 0}
-						<p class="font-mono text-sm {rule.met ? 'text-ink' : 'text-street'}">
+						<p class="font-mono text-sm {rule.met ? 'text-ink' : 'text-load'}">
 							{rule.done}
 							<span class="text-xs text-ink-3">{rule.unit}</span>
 						</p>
@@ -167,7 +167,7 @@
 							<span class="flex gap-1" aria-hidden="true">
 								{#each pips(rule.done, rule.target) as filled, i (i)}
 									<span
-										class="size-2 rounded-full {filled ? 'bg-suit-blue' : 'border border-line-strong'}"
+										class="size-2 rounded-full {filled ? 'bg-bio' : 'border border-line-strong'}"
 									></span>
 								{/each}
 							</span>
@@ -182,7 +182,7 @@
 		</ul>
 	</section>
 
-	<section class="panel p-5">
+	<section class="panel hud-load p-5">
 		<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
 			<h2 class="text-sm font-medium text-ink">Risposta al carico</h2>
 			<p class="text-xs text-ink-3">Ultimi 30 giorni</p>
@@ -191,7 +191,7 @@
 	</section>
 
 	<div class="grid gap-gutter sm:grid-cols-2">
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="label mb-3">Prossima corsa</h2>
 			{#if data.nextRun}
 				<p class="text-sm text-ink">{data.nextRun.protocol}</p>
@@ -210,7 +210,7 @@
 			{/if}
 		</section>
 
-		<section class="panel p-5">
+		<section class="panel hud-load p-5">
 			<h2 class="label mb-3">Oggi da Salute</h2>
 			<dl class="space-y-2">
 				<div class="flex items-baseline justify-between gap-4">

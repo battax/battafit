@@ -5,6 +5,22 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
 		<meta name="theme-color" content="#0a0d14" />
+
+		<!--
+			Aggiunta alla schermata Home.
+
+			Il manifest da solo basta ad Android e a Safari recente; `apple-*` serve
+			ancora agli iPhone più indietro, che altrimenti aprono una scheda del
+			browser con la barra degli indirizzi addosso. La barra di stato è `black`
+			e non `black-translucent`: la traslucida farebbe scorrere il contenuto
+			sotto il notch, e la testata di ogni pagina finirebbe mezza coperta.
+		-->
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="apple-mobile-web-app-title" content="BattaFit" />
+
 		<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
 		<link rel="apple-touch-icon" href="/battafit-icon-192.png" />
 		%sveltekit.head%

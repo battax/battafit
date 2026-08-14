@@ -1,0 +1,19 @@
+{
+	"id": "/",
+	"name": "BattaFit",
+	"short_name": "BattaFit",
+	"description": "Dashboard privata sui dati dell'Apple Watch e sul recupero del legamento crociato.",
+	"lang": "it",
+	"dir": "ltr",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#0a0d14",
+	"theme_color": "#0a0d14",
+	"icons": [
+		{ "src": "/battafit-icon-512.webp", "sizes": "512x512", "type": "image/webp", "purpose": "any" },
+		{ "src": "/battafit-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+		{ "src": "/battafit-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+	]
+}

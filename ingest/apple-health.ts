@@ -24,6 +24,20 @@ const MAX_ROUTE_POINTS = 500;
 const MAX_HR_SAMPLES_PER_WORKOUT = 300;
 const SLEEP_SESSION_GAP_MIN = 60;
 
+/**
+ * Prima di questa data non esiste nessun dato vero.
+ *
+ * L'export di Apple contiene un paio di `<ActivitySummary>` datati 1969-12-30 e
+ * 1969-12-31, con tutti i valori a zero: sono segnaposto attorno all'epoca Unix,
+ * non giornate. Basta lasciarli passare perché l'asse temporale di ogni grafico
+ * si allunghi di cinquantasette anni e ogni serie diventi una riga schiacciata
+ * all'estrema destra.
+ *
+ * La soglia è volutamente larga: HealthKit è del 2014, ma un peso trascritto a
+ * mano da un vecchio diario è plausibile, un dato del 1999 no.
+ */
+const EARLIEST_PLAUSIBLE_DAY = '2000-01-01';
+
 export interface ParsedWorkout {
 	id: string;
 	type: string;
@@ -317,6 +331,7 @@ async function scanStructural(source: ExportSource, onProgress?: (n: number) => 
 
 	let current: WorkoutDraft | null = null;
 	let inRoute = false;
+	let ghostDays = 0;
 
 	const stream = await source.openXml();
 	const { errors } = await streamXml(stream, {
@@ -412,6 +427,10 @@ async function scanStructural(source: ExportSource, onProgress?: (n: number) => 
 				case 'ActivitySummary': {
 					const day = attrs.dateComponents;
 					if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) break;
+					if (day < EARLIEST_PLAUSIBLE_DAY) {
+						ghostDays++;
+						break;
+					}
 					const push = (metric: string, value: number | null) => {
 						if (value !== null) summaries.push({ day, metric, value });
 					};
@@ -436,7 +455,7 @@ async function scanStructural(source: ExportSource, onProgress?: (n: number) => 
 	});
 
 	drafts.sort((a, b) => a.startMs - b.startMs);
-	return { drafts, summaries, errors };
+	return { drafts, summaries, errors, ghostDays };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -464,7 +483,7 @@ export async function parseAppleExport(
 	const warnings: string[] = [];
 	const total = source.xmlSize;
 
-	const { drafts, summaries, errors: structErrors } = await scanStructural(source, (b) =>
+	const { drafts, summaries, errors: structErrors, ghostDays } = await scanStructural(source, (b) =>
 		opts.onProgress?.('allenamenti', b, total)
 	);
 
@@ -472,6 +491,7 @@ export async function parseAppleExport(
 	const sleepSegments: SleepSegment[] = [];
 	let recordsRead = 0;
 	let skippedNoDay = 0;
+	let ghostRecords = 0;
 
 	const stream = await source.openXml();
 	const { errors: recordErrors } = await streamXml(stream, {
@@ -508,6 +528,12 @@ export async function parseAppleExport(
 			const day = appleDay(attrs.startDate);
 			if (!day) {
 				skippedNoDay++;
+				return;
+			}
+			// Stesso filtro degli anelli: qui non se ne sono mai visti, ma un solo
+			// record del 1969 basterebbe a rifare il danno sull'asse dei grafici.
+			if (day < EARLIEST_PLAUSIBLE_DAY) {
+				ghostRecords++;
 				return;
 			}
 			if (opts.since && day < opts.since) return;
@@ -598,6 +624,12 @@ export async function parseAppleExport(
 		);
 	}
 	if (skippedNoDay > 0) warnings.push(`${skippedNoDay} record senza data valida saltati.`);
+	if (ghostDays + ghostRecords > 0) {
+		warnings.push(
+			`${ghostDays + ghostRecords} voci fantasma precedenti al ${EARLIEST_PLAUSIBLE_DAY} scartate ` +
+				`(segnaposto di Apple attorno all'epoca Unix, tutti a zero).`
+		);
+	}
 	if (routesMissing > 0) {
 		warnings.push(
 			`${routesMissing} tracce GPS non trovate nell'export: le mappe di quegli allenamenti resteranno vuote.`

@@ -116,7 +116,7 @@
 		<ProtocolBar weeks={data.cells} today={data.today} milestones={data.milestones} />
 
 		<ul class="mt-5 divide-y divide-line border-t border-line">
-			{#each data.milestones as m (m.day)}
+			{#each data.milestones as m (m.id)}
 				{@const past = m.day < data.today}
 				<li class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2.5">
 					<span class="font-mono text-xs {past ? 'text-ink-3' : 'text-street'}">{formatDayShort(m.day)}</span>

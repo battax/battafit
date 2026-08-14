@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { getSleep, getManySeries } from '$lib/server/queries';
 import { resolveRange } from '$lib/range';
+import { groupNightsByDay } from '$lib/sleep';
 
 /**
  * Sonno.
@@ -9,6 +10,11 @@ import { resolveRange } from '$lib/range';
  * media e quanto quell'ora oscilla da una notte all'altra. Sulla qualità del
  * sonno la costanza pesa spesso più del totale di ore, e non è un numero che
  * l'app Salute mostri.
+ *
+ * Le sessioni arrivano dal database come le registra l'orologio — più d'una per
+ * giornata quando c'è un pisolino o una notte spezzata — e vengono raggruppate
+ * per giorno prima di qualsiasi conto: "media per notte" deve dividere per le
+ * notti, non per le sessioni.
  */
 
 export const load: PageServerLoad = async ({ parent, url }) => {
@@ -17,11 +23,12 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 
 	if (empty) return { range, nights: [], series: {}, stats: null };
 
-	const [nights, series] = await Promise.all([
+	const [sessions, series] = await Promise.all([
 		getSleep(range.from, range.to),
 		getManySeries(['sleepAsleep', 'sleepDeep', 'sleepRem'], range.from, range.to)
 	]);
 
+	const nights = groupNightsByDay(sessions);
 	const withSleep = nights.filter((n) => (n.asleepSec ?? 0) > 0);
 
 	/**

@@ -86,7 +86,8 @@
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-line">
-						{#each data.best as row (`${row.exercise}-${row.side}`)}
+						<!-- Stessa chiave composta di `bestByExercise`: un trattino fra i due campi si potrebbe ritrovare dentro il nome di un esercizio. -->
+						{#each data.best as row (JSON.stringify([row.exercise, row.side]))}
 							<tr>
 								<th scope="row" class="py-2.5 text-left font-normal text-ink">{row.exercise}</th>
 								<td class="py-2.5 text-ink-2">{row.side ? SIDE_LABEL.get(row.side) : '—'}</td>

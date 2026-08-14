@@ -30,7 +30,8 @@
 	interface Props {
 		weeks: WeekCell[];
 		today: string;
-		milestones: { day: string; title: string }[];
+		/** L'`id` e non la data: due scadenze possono cadere lo stesso giorno. */
+		milestones: { id: number; day: string; title: string }[];
 		height?: number;
 	}
 
@@ -150,7 +151,7 @@
 					<circle cx={x(todayOffset)} cy="-6" r="2.5" fill="var(--color-suit-red)" />
 				{/if}
 
-				{#each pins as pin (pin.day)}
+				{#each pins as pin (pin.id)}
 					<line
 						x1={x(pin.offset)}
 						x2={x(pin.offset)}

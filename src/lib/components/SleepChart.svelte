@@ -11,6 +11,12 @@
 	 * categorie indipendenti, quindi usano una sola tinta a intensità crescente
 	 * invece di quattro colori diversi. Fra un segmento e l'altro passano 2px di
 	 * superficie: è quello che separa le fasi, non una riga di contorno.
+	 *
+	 * **Vuole una riga per giorno.** Il giorno è sia la chiave dell'elenco sia
+	 * l'ascissa: due sessioni della stessa data disegnerebbero due colonne
+	 * sovrapposte, e prima ancora farebbero cadere la pagina con un errore di
+	 * chiave duplicata. Il raggruppamento sta in `groupNightsByDay`, che è dove
+	 * serve anche alle statistiche.
 	 */
 
 	export interface Night {

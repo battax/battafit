@@ -84,9 +84,11 @@ export const load: PageServerLoad = async ({ parent }) => {
 		alerts,
 		nextRun,
 		nextDeadline: nextDeadline(events, today),
+		// L'`id` viaggia insieme alla data perché è la chiave degli elenchi: le
+		// scadenze si aggiungono a mano, e due sullo stesso giorno sono legittime.
 		milestones: events
 			.filter((e) => e.day)
-			.map((e) => ({ day: e.day as string, title: e.title })),
+			.map((e) => ({ id: e.id, day: e.day as string, title: e.title })),
 		weight: lastWeight?.value ?? null,
 		weightFromWatch: lastWeight?.fromHealth ?? false,
 		runMinutes: runMinutes[today] ?? null,

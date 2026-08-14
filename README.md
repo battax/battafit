@@ -162,6 +162,13 @@ prima.
 **Non è un dispositivo medico.** L'app mostra i valori che le vengono dati e le
 regole già concordate con i professionisti. Non ne deduce di nuove.
 
+**`@vercel/analytics` è installato di proposito e non usato.** Nessun file lo
+importa, quindi non raccoglie niente: per attivarlo servirebbe montare
+`<Analytics />` nel layout radice. Sta lì pronto ma spento, per scelta —
+manderebbe a Vercel i percorsi visitati (`/recupero/registro`, `/recupero/misure`)
+e su un'app sanitaria a utente singolo non vale lo scambio. Non rimuoverlo
+pensando sia una dipendenza dimenticata.
+
 ## Comandi
 
 | Comando | Cosa fa |

@@ -15,6 +15,14 @@ import { tokensMatch } from '$lib/server/auth';
  * i valori invece di duplicarli.
  */
 
+/**
+ * Dieci secondi — il tetto predefinito su serverless — non bastano per un batch
+ * di migliaia di righe contro un database che si sta risvegliando dalla sospensione.
+ * È l'unica rotta dell'app che scrive tanto in una volta sola: le altre leggono
+ * aggregati già pronti e restano ampiamente sotto il limite.
+ */
+export const config = { maxDuration: 60 };
+
 interface DayRow {
 	day: string;
 	metric: string;

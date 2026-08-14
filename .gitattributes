@@ -1,0 +1,11 @@
+# Nel repository le righe finiscono sempre con LF, anche lavorando da Windows.
+# Senza questa riga Git riscrive la copia di lavoro in CRLF al primo checkout e
+# ogni file risulta modificato senza che nessuno l'abbia toccato.
+* text=auto eol=lf
+
+# Binari: nessuna conversione.
+*.png binary
+*.webp binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

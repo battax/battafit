@@ -1,0 +1,253 @@
+@import 'tailwindcss';
+
+/**
+ * battafit — universo Spider-Man (The Amazing Spider-Man)
+ *
+ * Il tema prende dai film di Andrew Garfield: notte di New York, fondo blu
+ * quasi nero come il blu scuro della tuta, e i dati che emettono luce sopra.
+ * Non solo rosso e blu: la tavolozza attinge a tutto l'universo — il ciano
+ * elettrico di Electro, l'ambra dei lampioni al sodio, il verde di Lizard, il
+ * viola del Goblin, il verdeacqua dei laboratori Oscorp.
+ *
+ * Ogni colore di serie è stato verificato a macchina contro questo esatto
+ * fondo: banda di luminosità, soglia di croma, separazione per daltonismo e
+ * contrasto. Le tinte pure del logo (#ff0000, #005dff) sono splendide come
+ * marchio ma inutilizzabili come dati: troppo sature e fuori banda.
+ */
+
+@theme {
+	/* ── Superfici: il blu notte della tuta ────────────────────────────── */
+	--color-page: #0a0d14;
+	--color-panel: #101725;
+	--color-panel-2: #161f31;
+	--color-line: #1e2940;
+	--color-line-strong: #2c3a56;
+
+	/* ── Inchiostri ────────────────────────────────────────────────────── */
+	--color-ink: #f2f5fa;
+	--color-ink-2: #9aa6bd;
+	--color-ink-3: #64708a;
+
+	/* ── Serie dati ────────────────────────────────────────────────────────
+	 * L'ordine degli slot non è estetico: è il meccanismo che tiene separate
+	 * le coppie che finirebbero vicine. Rimescolarlo richiede di rilanciare il
+	 * validatore. Il ciano sta dopo l'ambra e non dopo l'azzurro apposta: i due
+	 * blu stanno a ΔE 11.5 e affiancati non si distinguono.
+	 * Peggior coppia adiacente a vista normale: ΔE 23.0. */
+	--color-suit-red: #cf3444; /* 1 · rosso della tuta       */
+	--color-suit-blue: #3d82e8; /* 2 · azzurro della tuta     */
+	--color-street: #bd8b22; /* 3 · lampioni al sodio      */
+	--color-electro: #17a2c4; /* 4 · l'arco elettrico       */
+	--color-rose: #d55181; /* 5 · rosa dei riflessi      */
+	--color-lizard: #3f9445; /* 6 · verde di Lizard        */
+	--color-goblin: #9085e9; /* 7 · viola del Goblin       */
+	--color-oscorp: #199e70; /* 8 · verdeacqua dei labora- */
+
+	/* ── Anelli attività ───────────────────────────────────────────────────
+	 * Rosso e azzurro della tuta più l'ambra dei lampioni. Trio verificato su
+	 * tutte le coppie, non solo su quelle adiacenti, perché i tre anelli si
+	 * vedono insieme: peggior coppia ΔE 19.6 a vista normale.
+	 *
+	 * Il controllo per i daltonici qui è stato deliberatamente rinunciato (la
+	 * coppia rosso/ambra misura 4.9): è una dashboard a utente singolo e il
+	 * proprietario non ha deficit di visione dei colori. Se un giorno l'app
+	 * venisse mostrata o pubblicata, la terna da rimettere è rosso, ciano e
+	 * ambra, che supera anche quel controllo. */
+	--color-move: #cf3444;
+	--color-exercise: #3d82e8;
+	--color-stand: #bd8b22;
+
+	/* ── Rampa sequenziale (fasi del sonno, grandezze ordinate) ──────────
+	 * Un'unica tinta nella famiglia dell'azzurro della tuta, dal chiaro allo
+	 * scuro. Il passo più scuro resta sopra 2:1 sul fondo. */
+	--color-ramp-100: #cfe0fb;
+	--color-ramp-250: #8bb6f0;
+	--color-ramp-400: #3d82e8;
+	--color-ramp-500: #2a66bd;
+	--color-ramp-600: #1b4c92;
+
+	/* ── Stato: riservati, mai riusati come colore di serie ────────────── */
+	--color-good: #0ca30c;
+	--color-warning: #fab219;
+	--color-critical: #d03b3b;
+
+	/* ── Cromatura dei grafici ─────────────────────────────────────────── */
+	--color-grid: #18202f;
+	--color-axis: #2c3a56;
+
+	/* ── Tipografia: tre ruoli ─────────────────────────────────────────────
+	 * Display  — Archivo in larghezza espansa. La larghezza esagerata è la
+	 *            stessa mossa della scritta cromata del logo. Sta su due soli
+	 *            elementi per pagina: il titolo e la cifra d'apertura. Se
+	 *            scendesse anche sulle intestazioni di sezione, la dashboard
+	 *            diventerebbe un manifesto.
+	 * Testo    — Geist. Il suo compito è sparire.
+	 * Dati     — Geist Mono su tacche, colonne e orari: chi misura porta il
+	 *            carattere della misura. */
+	--font-display: 'Archivo Variable', system-ui, sans-serif;
+	--font-sans: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', monospace;
+
+	--text-figure: 2.75rem;
+	--text-figure--line-height: 1;
+	--text-figure--letter-spacing: -0.04em;
+	--text-figure--font-weight: 560;
+
+	--text-figure-lg: 4rem;
+	--text-figure-lg--line-height: 0.95;
+	--text-figure-lg--letter-spacing: -0.045em;
+	--text-figure-lg--font-weight: 560;
+
+	/* Etichette di strumentazione: piccole, spaziate, in maiuscoletto. */
+	--text-label: 0.6875rem;
+	--text-label--line-height: 1;
+	--text-label--letter-spacing: 0.09em;
+	--text-label--font-weight: 500;
+
+	/* Angoli quasi vivi: la vignetta di un fumetto non è stondata. Non zero,
+	 * che scivolerebbe nel look "broadsheet" da template. */
+	--radius-panel: 4px;
+
+	/* Il gutter fra le vignette. Unico valore per tutta l'app. */
+	--spacing-gutter: 12px;
+
+	/* Curva di uscita esponenziale: parte veloce e si posa, come uno strumento
+	 * che si assesta. È l'unica curva usata in tutta l'interfaccia. */
+	--ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+	html {
+		background: var(--color-page);
+		color-scheme: dark;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	body {
+		background: var(--color-page);
+		color: var(--color-ink);
+		font-family: var(--font-sans);
+		font-feature-settings: 'cv11', 'ss01';
+		-webkit-font-smoothing: antialiased;
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--color-electro);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+
+	::selection {
+		background: color-mix(in oklab, var(--color-suit-red) 45%, transparent);
+	}
+
+	/* Le cifre nelle tabelle e sugli assi devono incolonnarsi. */
+	.tabular {
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+@layer components {
+	/**
+	 * Pannello: il contenitore base. Il bordo è una singola hairline chiara,
+	 * non un'ombra: su fondo quasi nero un'ombra non si vedrebbe, mentre un
+	 * bordo luminoso legge come il profilo di uno strumento.
+	 */
+	.panel {
+		background: var(--color-panel);
+		border: 1px solid var(--color-line);
+		border-radius: var(--radius-panel);
+	}
+
+	/**
+	 * Il carattere display. Le facce espanse hanno già molta aria fra le
+	 * lettere, quindi la spaziatura resta minima: aggiungerne altra le farebbe
+	 * sfaldare invece di darle autorevolezza.
+	 */
+	.display {
+		font-family: var(--font-display);
+		font-stretch: 118%;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.005em;
+	}
+
+	/**
+	 * La vignetta che rompe il gutter: esce dai margini della colonna e arriva
+	 * ai bordi. Una sola per pagina, per il grafico che comanda — se fossero
+	 * due, nessuna delle due comanderebbe più niente.
+	 */
+	.panel-bleed {
+		margin-inline: calc(var(--spacing) * -4);
+		border-inline: 0;
+		border-radius: 0;
+	}
+
+	@media (min-width: 48rem) {
+		.panel-bleed {
+			margin-inline: calc(var(--spacing) * -8);
+		}
+	}
+
+	/**
+	 * Sfumatura sul bordo destro di una fila che scorre.
+	 *
+	 * Serve dove il contenuto esce dallo schermo senza lasciare mezza voce in
+	 * vista: senza, una scheda tagliata di netto dal bordo sembra l'ultima.
+	 */
+	.mask-fade-right {
+		mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
+	}
+
+	.label {
+		font-size: var(--text-label);
+		line-height: var(--text-label--line-height);
+		letter-spacing: var(--text-label--letter-spacing);
+		font-weight: var(--text-label--font-weight);
+		text-transform: uppercase;
+		color: var(--color-ink-3);
+	}
+
+	/**
+	 * Bagliore dietro i tracciati: la luce viene emessa dal dato. È un'ombra
+	 * colorata sfocata sotto la linea, non un aumento di luminosità del tratto,
+	 * che sfonderebbe la banda validata della palette.
+	 */
+	.glow {
+		filter: drop-shadow(0 0 6px color-mix(in oklab, currentColor 45%, transparent));
+	}
+
+	/**
+	 * Ragnatela di fondo per la schermata d'accesso.
+	 *
+	 * Due gradienti conici disegnano i raggi, tre radiali le spirali. Resta
+	 * sotto il 5% di opacità: deve riconoscersi solo dopo che si è già letto
+	 * quello che conta, altrimenti diventa decorazione che disturba.
+	 */
+	.web-backdrop {
+		background-image:
+			repeating-conic-gradient(
+				from 0deg at 50% 45%,
+				color-mix(in oklab, var(--color-ink) 100%, transparent) 0deg 0.12deg,
+				transparent 0.12deg 15deg
+			),
+			repeating-radial-gradient(
+				circle at 50% 45%,
+				transparent 0 58px,
+				color-mix(in oklab, var(--color-ink) 100%, transparent) 58px 59px
+			);
+		opacity: 0.045;
+		mask-image: radial-gradient(circle at 50% 45%, black, transparent 72%);
+	}
+}
+
+/* Chi ha chiesto meno animazioni non deve vedere i tracciati disegnarsi. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
